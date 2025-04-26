@@ -122,6 +122,22 @@ if st.session_state.upload_history:
     for item in st.session_state.upload_history[::-1]:
         st.write(f"**{item['file']}** salvo como **{item['saved_as']}** em {item['time']}")
 
+# Visualizar Base Geral
+st.markdown("---")
+st.subheader("📁 Visualizar Base Geral")
+base_files = os.listdir("base_geral")
+if base_files:
+    for file in base_files:
+        with open(os.path.join("base_geral", file), "rb") as f:
+            st.download_button(
+                label=f"📂 Baixar {file}",
+                data=f,
+                file_name=file,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+else:
+    st.info("Nenhum arquivo encontrado na base geral.")
+
 # Rodapé
 st.markdown("""
     <hr>
