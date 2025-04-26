@@ -1,17 +1,16 @@
 
-# 📊 Plataforma de Upload de Planilhas - Clean Moderno
+# 📊 Plataforma de Upload e Integração de Dados - Clean Moderno
 
-Aplicativo para envio, tratamento automático e geração de resumo visual de planilhas Excel, com visual clean e profissional.
+Aplicativo para envio, integração simulada e tratamento de planilhas Excel para Power BI.
 
 ## Funcionalidades
-- Página de boas-vindas
 - Upload de múltiplos arquivos
-- Visualização de dados
-- Tratamento automático das colunas 'Região' e 'Valor da Venda'
-- Cards de métricas (Total de Vendas, Quantidade de Registros)
-- Gráfico automático de vendas por região
-- Download da planilha tratada (.xlsx)
-- Layout clean, moderno e elegante
+- Simulação de envio para "servidor de dados"
+- Armazenamento local temporário
+- Visualização e tratamento automático dos dados
+- Geração de métricas e gráfico de vendas
+- Download da planilha tratada
+- Layout clean, elegante e moderno
 
 ## Como rodar localmente
 1. Clone o repositório

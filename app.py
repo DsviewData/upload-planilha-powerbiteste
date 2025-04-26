@@ -3,8 +3,12 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 import plotly.express as px
+import os
+from datetime import datetime
+import time
+import uuid
 
-st.set_page_config(page_title="Plataforma de Upload Power BI", page_icon="📊", layout="centered")
+st.set_page_config(page_title="Upload de Planilhas Power BI", page_icon="📊", layout="centered")
 
 # Estilo customizado
 st.markdown(
@@ -26,35 +30,49 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown('<h1 class="title">📊 Plataforma de Upload de Planilhas</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">Organize e trate seus dados para o Power BI com facilidade</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="title">📊 Plataforma de Upload e Integração de Planilhas</h1>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Envie e integre seus dados para análise no Power BI</p>', unsafe_allow_html=True)
 
-page = st.sidebar.selectbox("📄 Navegar:", ["🏠 Início", "📂 Upload de Planilhas"])
+page = st.sidebar.selectbox("📄 Navegar:", ["🏠 Início", "📂 Upload e Integração"])
 
 if page == "🏠 Início":
     st.header("🚀 Bem-vindo!")
     st.write("""
-    Este aplicativo permite que você envie suas planilhas Excel (.xlsx), visualize os dados, aplique tratamentos automáticos e baixe o arquivo pronto para análise.
+    Esta plataforma permite enviar planilhas Excel (.xlsx), integrá-las simuladamente em um servidor de dados e preparar para análise no Power BI.
 
     **Funcionalidades:**  
     - Upload de múltiplos arquivos.  
-    - Visualização limpa dos dados.  
-    - Tratamento inteligente de campos padrão.  
-    - Resumo visual com métricas e gráficos.
+    - Simulação de envio para servidor de dados.  
+    - Visualização e tratamento de dados.  
+    - Geração de métricas e gráficos.
 
-    Selecione **Upload de Planilhas** no menu à esquerda para começar!
+    Selecione **Upload e Integração** no menu lateral para começar!
     """)
     st.image("https://cdn-icons-png.flaticon.com/512/201/201623.png", width=250)
 
-elif page == "📂 Upload de Planilhas":
+elif page == "📂 Upload e Integração":
     uploaded_files = st.file_uploader("**📂 Envie suas planilhas Excel (.xlsx)**", type=["xlsx"], accept_multiple_files=True)
 
     if uploaded_files:
+        if not os.path.exists("uploads"):
+            os.makedirs("uploads")
+
         for uploaded_file in uploaded_files:
             st.divider()
             st.header(f"📄 {uploaded_file.name}")
 
             try:
+                with st.spinner('🚀 Enviando arquivo para o servidor de dados...'):
+                    time.sleep(2)  # Simula tempo de upload
+                    file_id = str(uuid.uuid4())[:8]
+                    save_path = os.path.join("uploads", f"{file_id}_{uploaded_file.name}")
+                    with open(save_path, "wb") as f:
+                        f.write(uploaded_file.getbuffer())
+                    upload_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+                st.success(f"✅ Arquivo '{uploaded_file.name}' armazenado com sucesso no servidor!")
+                st.info(f"🆔 ID do Upload: {file_id} | 📅 Data/Hora: {upload_time}")
+
                 df = pd.read_excel(uploaded_file)
                 st.subheader('🔍 Dados Recebidos')
                 st.dataframe(df, use_container_width=True)
@@ -102,4 +120,4 @@ elif page == "📂 Upload de Planilhas":
             except Exception as e:
                 st.error(f"❌ Erro ao processar o arquivo: {e}")
 
-st.markdown('<p class="footer">Desenvolvido com ❤️ por Daniel Netto | Plataforma Clean Moderno</p>', unsafe_allow_html=True)
+st.markdown('<p class="footer">Desenvolvido com ❤️ por Daniel Netto | Integração Simulada de Dados</p>', unsafe_allow_html=True)
