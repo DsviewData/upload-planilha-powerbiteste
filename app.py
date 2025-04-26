@@ -100,8 +100,8 @@ elif page == "📂 Upload e Integração":
 
                     st.divider()
 
-                    vendas_por_regiao = df.groupby('Reponsável')['TMO - Total'].sum().reset_index()
-                    fig = px.bar(vendas_por_regiao, x='Reponsável', y='TMO - Total', text_auto=True, template="simple_white")
+                    vendas_por_regiao = df.groupby('Responsável')['TMO - Total'].sum().reset_index()
+                    fig = px.bar(vendas_por_regiao, x='Responsável', y='TMO - Total', text_auto=True, template="simple_white")
                     fig.update_traces(marker_color="#0057b7")
                     fig.update_layout(title="Vendas por Responsável", xaxis_title="Responsável", yaxis_title="Valor da Venda (R$)", title_x=0.5)
                     st.plotly_chart(fig, use_container_width=True)
