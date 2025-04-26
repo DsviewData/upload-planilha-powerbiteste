@@ -17,18 +17,16 @@ if not os.path.exists("uploads"):
 if not os.path.exists("base_geral"):
     os.makedirs("base_geral")
 
-# Sidebar
-st.sidebar.title("📂 Opções")
-st.sidebar.markdown("Envie sua planilha e acompanhe o processamento.")
-uploaded_file = st.sidebar.file_uploader("Escolha um arquivo Excel ou CSV", type=["xlsx", "csv"])
+# Corpo principal
+st.title("📊 Plataforma de Upload e Integração de Dados")
+st.markdown("Envie sua planilha e acompanhe o processamento.")
+st.markdown("---")
+
+uploaded_file = st.file_uploader("Escolha um arquivo Excel ou CSV", type=["xlsx", "csv"])
 
 # Session State para histórico
 if 'upload_history' not in st.session_state:
     st.session_state.upload_history = []
-
-# Corpo principal
-st.title("📊 Plataforma de Upload e Integração de Dados")
-st.markdown("---")
 
 if uploaded_file:
     file_ext = uploaded_file.name.split('.')[-1].lower()
