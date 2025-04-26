@@ -11,14 +11,15 @@ import uuid
 # Configuração da página
 st.set_page_config(page_title="Upload Power BI", page_icon="📊", layout="wide")
 
-# Criar pasta de uploads se não existir
+# Criar pastas se não existirem
 if not os.path.exists("uploads"):
     os.makedirs("uploads")
+if not os.path.exists("base_geral"):
+    os.makedirs("base_geral")
 
 # Sidebar
 st.sidebar.title("📂 Opções")
 st.sidebar.markdown("Envie sua planilha e acompanhe o processamento.")
-project_name = st.sidebar.text_input("Nome do Projeto (opcional):")
 uploaded_file = st.sidebar.file_uploader("Escolha um arquivo Excel ou CSV", type=["xlsx", "csv"])
 
 # Session State para histórico
@@ -53,8 +54,7 @@ if uploaded_file:
             time.sleep(1.5)
             file_id = str(uuid.uuid4())[:8]
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            safe_project = project_name.replace(" ", "_") if project_name else "sem_projeto"
-            save_name = f"{safe_project}_{timestamp}_{file_id}.{file_ext}"
+            save_name = f"{timestamp}_{file_id}.{file_ext}"
             save_path = os.path.join("uploads", save_name)
 
             # Salvar arquivo bruto
@@ -111,17 +111,11 @@ if uploaded_file:
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
-                # Download
-                output = BytesIO()
-                with pd.ExcelWriter(output, engine='openpyxl') as writer:
-                    df.to_excel(writer, index=False)
+                # Simular envio para base geral
+                output_path = os.path.join("base_geral", f"tratado_{save_name}")
+                df.to_excel(output_path, index=False)
 
-                st.download_button(
-                    label="📥 Baixar Planilha Tratada",
-                    data=output.getvalue(),
-                    file_name=f"tratado_{uploaded_file.name}",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+                st.success(f"🚀 Arquivo tratado enviado para a base consolidada!")
 
 # Mostrar Histórico
 if st.session_state.upload_history:
