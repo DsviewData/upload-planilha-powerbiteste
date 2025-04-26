@@ -1,15 +1,16 @@
 
-# 📊 Plataforma de Upload e Integração de Dados - Clean Moderno (Página Única)
+# 📊 Plataforma de Upload e Integração de Dados - Versão Dashboard Premium
 
-Aplicativo para envio, tratamento e análise de planilhas Excel (.xlsx) focado em Power BI, com visual moderno e organizado em uma única página.
+Aplicativo premium para envio, tratamento e análise de planilhas Excel (.xlsx), focado em Power BI, com layout moderno e corporativo.
 
 ## Funcionalidades
 - Upload de múltiplos arquivos
-- Simulação de envio para "servidor de dados"
-- Validação e tratamento automático de campos
-- Cards de métricas (Total TMO e Quantidade de Registros)
-- Gráfico de Vendas por Responsável
+- Simulação de envio para "servidor"
+- Validação e tratamento automático
+- Cards de métricas (Total TMO, Quantidade de Registros)
+- Gráfico de Vendas estilizado
 - Download da planilha tratada (.xlsx)
+- Layout Premium Clean Corporativo
 
 ## Como rodar localmente
 1. Clone o repositório
