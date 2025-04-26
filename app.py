@@ -1,104 +1,72 @@
 
 import streamlit as st
 import pandas as pd
-from io import BytesIO
 import plotly.express as px
 import os
+from io import BytesIO
 from datetime import datetime
 import time
 import uuid
 
 # Configuração da página
-st.set_page_config(page_title="App de Upload de planilhas excel para o Power BI", page_icon="📊", layout="centered")
+st.set_page_config(page_title="Upload Power BI", page_icon="📊", layout="wide")
 
-# Estilo Premium
-st.markdown(
-    """
-    <style>
-    body {
-        background-color: #f9fafb;
-    }
-    .title {
-        color: #003366; 
-        font-size: 44px; 
-        text-align: center; 
-        font-weight: 600;
-    }
-    .subtitle {
-        color: #555; 
-        font-size: 22px; 
-        text-align: center; 
-        margin-bottom: 40px;
-    }
-    .metric-card {
-        background: white; 
-        padding: 20px; 
-        border-radius: 16px; 
-        box-shadow: 0 4px 8px rgba(0,0,0,0.08); 
-        text-align: center;
-    }
-    .stButton>button {
-        background-color: white;
-        color: #004aad;
-        border: 2px solid #004aad;
-        border-radius: 10px;
-        padding: 0.6em 1.2em;
-        font-size: 16px;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background-color: #004aad;
-        color: white;
-    }
-    .footer {
-        color: #999; 
-        font-size: 13px; 
-        text-align: center; 
-        margin-top: 60px;
-    }
-    hr {
-        border: none;
-        height: 1px;
-        background-color: #eaeaea;
-        margin: 30px 0;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# Criar pasta de uploads se não existir
+if not os.path.exists("uploads"):
+    os.makedirs("uploads")
 
-# Cabeçalho
-st.markdown('<h1 class="title">📊 Plataforma de Upload e Integração dados do Reports LimparAuto</h1>', unsafe_allow_html=True)
-st.markdown('<p class="subtitle">Envie, trate e analise seus dados para o Power BI</p>', unsafe_allow_html=True)
+# Sidebar
+st.sidebar.title("📂 Opções")
+st.sidebar.markdown("Envie sua planilha e acompanhe o processamento.")
+project_name = st.sidebar.text_input("Nome do Projeto (opcional):")
+uploaded_file = st.sidebar.file_uploader("Escolha um arquivo Excel ou CSV", type=["xlsx", "csv"])
 
-# Upload de arquivos
-uploaded_files = st.file_uploader("**🚀 Envie sua(s) planilha(s) Excel (.xlsx)**", type=["xlsx"], accept_multiple_files=True)
+# Session State para histórico
+if 'upload_history' not in st.session_state:
+    st.session_state.upload_history = []
 
-if uploaded_files:
-    if not os.path.exists("uploads"):
-        os.makedirs("uploads")
+# Corpo principal
+st.title("📊 Plataforma de Upload e Integração de Dados")
+st.markdown("---")
 
-    for uploaded_file in uploaded_files:
-        st.markdown("<hr>", unsafe_allow_html=True)
-        st.header(f"📄 Arquivo: {uploaded_file.name}")
+if uploaded_file:
+    file_ext = uploaded_file.name.split('.')[-1].lower()
 
-        try:
-            # Simula envio
-            with st.spinner('🚀 Enviando arquivo para o servidor de dados...'):
-                time.sleep(1.5)
-                file_id = str(uuid.uuid4())[:8]
-                save_path = os.path.join("uploads", f"{file_id}_{uploaded_file.name}")
-                with open(save_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                upload_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    # Ler arquivo
+    if file_ext == 'csv':
+        df = pd.read_csv(uploaded_file)
+    else:
+        sheets = pd.ExcelFile(uploaded_file).sheet_names
+        if len(sheets) > 1:
+            sheet = st.selectbox("Selecione a aba da planilha:", sheets)
+        else:
+            sheet = sheets[0]
+        df = pd.read_excel(uploaded_file, sheet_name=sheet)
 
-            st.success(f"✅ Arquivo enviado e armazenado no servidor!")
-            st.info(f"🆔 ID do Upload: {file_id} | 📅 {upload_time}")
+    # Mostrar preview
+    st.subheader("🔍 Preview dos Dados")
+    st.dataframe(df.head(), use_container_width=True)
 
-            # Ler planilha
-            df = pd.read_excel(uploaded_file)
-            st.subheader('🔍 Dados Recebidos')
-            st.dataframe(df, use_container_width=True)
+    # Botão para confirmar upload
+    if st.button("✅ Confirmar Upload e Tratar Dados"):
+        with st.spinner('Processando arquivo...'):
+            time.sleep(1.5)
+            file_id = str(uuid.uuid4())[:8]
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            safe_project = project_name.replace(" ", "_") if project_name else "sem_projeto"
+            save_name = f"{safe_project}_{timestamp}_{file_id}.{file_ext}"
+            save_path = os.path.join("uploads", save_name)
+
+            # Salvar arquivo bruto
+            with open(save_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+
+            # Salvar no histórico
+            st.session_state.upload_history.append({
+                "file": uploaded_file.name,
+                "saved_as": save_name,
+                "time": datetime.now().strftime("%d/%m/%Y %H:%M")
+            })
 
             # Validação
             required_cols = ['RESPONSÁVEL', 'TMO - Total']
@@ -108,36 +76,34 @@ if uploaded_files:
                 st.error(f"🚫 Faltando colunas obrigatórias: {', '.join(missing_cols)}")
             else:
                 # Tratamento
-                df['RESPONSÁVEL'] = df['RESPONSÁVEL'].str.capitalize()
+                df['RESPONSÁVEL'] = df['RESPONSÁVEL'].astype(str).str.capitalize()
                 df['TMO - Total'] = pd.to_numeric(df['TMO - Total'], errors='coerce')
 
-                st.success('🎯 Dados tratados com sucesso!')
+                st.success('🎯 Dados tratados com sucesso! Vamos para a análise.')
 
-                st.markdown("<hr>", unsafe_allow_html=True)
-                st.subheader('📈 Relatório de Análise')
+                st.markdown("---")
+                st.subheader("📊 Relatório de Análise")
 
                 # Cards de Métricas
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.markdown('<div class="metric-card"><h3>Total de TMO (R$)</h3><p style="font-size:26px;">{:,.2f}</p></div>'.format(df['TMO - Total'].sum()).replace(",", "X").replace(".", ",").replace("X", "."), unsafe_allow_html=True)
+                    st.metric(label="💰 Total TMO (R$)", value=f"R$ {df['TMO - Total'].sum():,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
                 with col2:
-                    st.markdown('<div class="metric-card"><h3>Quantidade de Registros</h3><p style="font-size:26px;">{}</p></div>'.format(len(df)), unsafe_allow_html=True)
-
-                st.markdown("<hr>", unsafe_allow_html=True)
+                    st.metric(label="📈 Total de Registros", value=len(df))
 
                 # Gráfico
-                vendas_por_responsavel = df.groupby('RESPONSÁVEL')['TMO - Total'].sum().reset_index()
+                vendas = df.groupby('RESPONSÁVEL')['TMO - Total'].sum().reset_index()
                 fig = px.bar(
-                    vendas_por_responsavel, 
-                    x='RESPONSÁVEL', 
-                    y='TMO - Total', 
+                    vendas,
+                    x='RESPONSÁVEL',
+                    y='TMO - Total',
                     text_auto='.2s',
                     template="simple_white",
                     color_discrete_sequence=["#004aad"]
                 )
                 fig.update_traces(marker_line_width=1.5, marker_line_color="white")
                 fig.update_layout(
-                    title="Vendas por Responsável",
+                    title="TMO por Responsável",
                     xaxis_title="Responsável",
                     yaxis_title="Valor TMO (R$)",
                     title_x=0.5,
@@ -157,8 +123,15 @@ if uploaded_files:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-        except Exception as e:
-            st.error(f"❌ Erro ao processar o arquivo: {e}")
+# Mostrar Histórico
+if st.session_state.upload_history:
+    st.markdown("---")
+    st.subheader("🗓 Histórico de Uploads nesta Sessão")
+    for item in st.session_state.upload_history[::-1]:
+        st.write(f"**{item['file']}** salvo como **{item['saved_as']}** em {item['time']}")
 
 # Rodapé
-st.markdown('<p class="footer">Desenvolvido com phyton por Daniel Vasconcelos | www.dsviewdata.com</p>', unsafe_allow_html=True)
+st.markdown("""
+    <hr>
+    <div style='text-align: center; color: #999;'>Desenvolvido com ❤️ por Daniel Netto | <a href='https://www.dsviewdata.com' target='_blank'>dsviewdata.com</a></div>
+""", unsafe_allow_html=True)
