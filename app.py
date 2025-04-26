@@ -94,7 +94,7 @@ elif page == "📂 Upload e Integração":
                     # Cards com métricas
                     col1, col2 = st.columns(2)
                     with col1:
-                        st.markdown('<div class="metric-card"><h3>Total de Vendas (R$)</h3><p style="font-size:26px;">{:,.2f}</p></div>'.format(df['Valor da Venda'].sum()).replace(",", "X").replace(".", ",").replace("X", "."), unsafe_allow_html=True)
+                        st.markdown('<div class="metric-card"><h3>Total de Vendas (R$)</h3><p style="font-size:26px;">{:,.2f}</p></div>'.format(df['TMO - Total'].sum()).replace(",", "X").replace(".", ",").replace("X", "."), unsafe_allow_html=True)
                     with col2:
                         st.markdown('<div class="metric-card"><h3>Quantidade de Registros</h3><p style="font-size:26px;">{}</p></div>'.format(len(df)), unsafe_allow_html=True)
 
