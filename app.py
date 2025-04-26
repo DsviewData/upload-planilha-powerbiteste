@@ -77,14 +77,14 @@ elif page == "📂 Upload e Integração":
                 st.subheader('🔍 Dados Recebidos')
                 st.dataframe(df, use_container_width=True)
 
-                required_cols = ['Região', 'Valor da Venda']
+                required_cols = ['RESPONSÁVEL', 'TMO - Total']
                 missing_cols = [col for col in required_cols if col not in df.columns]
 
                 if missing_cols:
                     st.error(f"🚫 Faltando colunas obrigatórias: {', '.join(missing_cols)}")
                 else:
-                    df['Região'] = df['Região'].str.capitalize()
-                    df['Valor da Venda'] = pd.to_numeric(df['Valor da Venda'], errors='coerce')
+                    df['RESPONSÁVEL'] = df['RESPONSÁVEL'].str.capitalize()
+                    df['TMO - Total'] = pd.to_numeric(df['TMO - Total'], errors='coerce')
 
                     st.success('🎯 Dados tratados com sucesso!')
 
@@ -100,10 +100,10 @@ elif page == "📂 Upload e Integração":
 
                     st.divider()
 
-                    vendas_por_regiao = df.groupby('Região')['Valor da Venda'].sum().reset_index()
-                    fig = px.bar(vendas_por_regiao, x='Região', y='Valor da Venda', text_auto=True, template="simple_white")
+                    vendas_por_regiao = df.groupby('Reponsável')['TMO - Total'].sum().reset_index()
+                    fig = px.bar(vendas_por_regiao, x='Reponsável', y='TMO - Total', text_auto=True, template="simple_white")
                     fig.update_traces(marker_color="#0057b7")
-                    fig.update_layout(title="Vendas por Região", xaxis_title="Região", yaxis_title="Valor da Venda (R$)", title_x=0.5)
+                    fig.update_layout(title="Vendas por Responsável", xaxis_title="Responsável", yaxis_title="Valor da Venda (R$)", title_x=0.5)
                     st.plotly_chart(fig, use_container_width=True)
 
                     output = BytesIO()
