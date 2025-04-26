@@ -9,7 +9,7 @@ import time
 import uuid
 
 # Configuração da página
-st.set_page_config(page_title="Dashboard de Upload Power BI", page_icon="📊", layout="centered")
+st.set_page_config(page_title="App de Upload de planilhas excel para o Power BI", page_icon="📊", layout="centered")
 
 # Estilo Premium
 st.markdown(
@@ -161,4 +161,4 @@ if uploaded_files:
             st.error(f"❌ Erro ao processar o arquivo: {e}")
 
 # Rodapé
-st.markdown('<p class="footer">Desenvolvido com ❤️ por Daniel Netto | www.dsviewdata.com</p>', unsafe_allow_html=True)
+st.markdown('<p class="footer">Desenvolvido com phyton por Daniel Vasconcelos | www.dsviewdata.com</p>', unsafe_allow_html=True)
