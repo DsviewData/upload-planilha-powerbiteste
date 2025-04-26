@@ -1,14 +1,17 @@
 
-# 📊 Upload e Tratamento de Dados para Power BI - Versão Premium
+# 📊 Plataforma de Upload de Planilhas - Clean Moderno
 
-Este aplicativo permite que o usuário envie **uma ou várias planilhas Excel (.xlsx)**, visualize os dados originais, aplique tratamentos básicos, e baixe os dados prontos para integração com Power BI.
+Aplicativo para envio, tratamento automático e geração de resumo visual de planilhas Excel, com visual clean e profissional.
 
 ## Funcionalidades
+- Página de boas-vindas
 - Upload de múltiplos arquivos
-- Visualização dos dados originais
-- Tratamento de colunas: 'Região' (capitalização) e 'Valor da Venda' (numérico)
-- Download do arquivo tratado (.xlsx)
-- Layout personalizado inspirado no Power BI
+- Visualização de dados
+- Tratamento automático das colunas 'Região' e 'Valor da Venda'
+- Cards de métricas (Total de Vendas, Quantidade de Registros)
+- Gráfico automático de vendas por região
+- Download da planilha tratada (.xlsx)
+- Layout clean, moderno e elegante
 
 ## Como rodar localmente
 1. Clone o repositório
