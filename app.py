@@ -94,16 +94,16 @@ elif page == "📂 Upload e Integração":
                     # Cards com métricas
                     col1, col2 = st.columns(2)
                     with col1:
-                        st.markdown('<div class="metric-card"><h3>Total de Vendas (R$)</h3><p style="font-size:26px;">{:,.2f}</p></div>'.format(df['TMO - Total'].sum()).replace(",", "X").replace(".", ",").replace("X", "."), unsafe_allow_html=True)
+                        st.markdown('<div class="metric-card"><h3>Total de TMO (R$)</h3><p style="font-size:26px;">{:,.2f}</p></div>'.format(df['TMO - Total'].sum()).replace(",", "X").replace(".", ",").replace("X", "."), unsafe_allow_html=True)
                     with col2:
                         st.markdown('<div class="metric-card"><h3>Quantidade de Registros</h3><p style="font-size:26px;">{}</p></div>'.format(len(df)), unsafe_allow_html=True)
 
                     st.divider()
 
-                    vendas_por_regiao = df.groupby('Responsável')['TMO - Total'].sum().reset_index()
-                    fig = px.bar(vendas_por_regiao, x='Responsável', y='TMO - Total', text_auto=True, template="simple_white")
+                    vendas_por_regiao = df.groupby('RESPONSÁVEL')['TMO - Total'].sum().reset_index()
+                    fig = px.bar(vendas_por_regiao, x='RESPONSÁVEL', y='TMO - Total', text_auto=True, template="simple_white")
                     fig.update_traces(marker_color="#0057b7")
-                    fig.update_layout(title="Vendas por Responsável", xaxis_title="Responsável", yaxis_title="Valor da Venda (R$)", title_x=0.5)
+                    fig.update_layout(title="Vendas por Responsável", xaxis_title="Responsável", yaxis_title="Valor TMO (R$)", title_x=0.5)
                     st.plotly_chart(fig, use_container_width=True)
 
                     output = BytesIO()
@@ -120,4 +120,4 @@ elif page == "📂 Upload e Integração":
             except Exception as e:
                 st.error(f"❌ Erro ao processar o arquivo: {e}")
 
-st.markdown('<p class="footer">Desenvolvido com ❤️ por Daniel Netto | Integração Simulada de Dados</p>', unsafe_allow_html=True)
+st.markdown('<p class="footer">Desenvolvido em Python por www.dsviewdata.com | Integração Simulada de Dados</p>', unsafe_allow_html=True)
