@@ -18,7 +18,7 @@ if not os.path.exists("base_geral"):
     os.makedirs("base_geral")
 
 # Corpo principal
-st.title("📊 Plataforma de Upload e Integração de Dados")
+st.title("📊 Plataforma de Upload e Integração de Dados Limpar Auto")
 st.markdown("Envie sua planilha e acompanhe o processamento.")
 st.markdown("---")
 
@@ -113,7 +113,7 @@ if uploaded_file:
                 output_path = os.path.join("base_geral", f"tratado_{save_name}")
                 df.to_excel(output_path, index=False)
 
-                st.success(f"🚀 Arquivo tratado enviado para a base consolidada!")
+                st.success(f"🚀 Arquivo tratado enviado com sucesso para app de consolidação dos dados!")
 
 # Mostrar Histórico
 if st.session_state.upload_history:
