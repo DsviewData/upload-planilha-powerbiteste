@@ -141,5 +141,5 @@ else:
 # Rodapé
 st.markdown("""
     <hr>
-    <div style='text-align: center; color: #999;'>Desenvolvido com ❤️ por Daniel Netto | <a href='https://www.dsviewdata.com' target='_blank'>dsviewdata.com</a></div>
+    <div style='text-align: center; color: #999;'>Desenvolvido em Phyton por Daniel Vasconcelos | <a href='https://www.dsviewdata.com' target='_blank'>dsviewdata.com</a></div>
 """, unsafe_allow_html=True)
