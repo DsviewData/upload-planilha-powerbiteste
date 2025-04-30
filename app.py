@@ -18,5 +18,9 @@ if uploaded_file:
 
         st.subheader("🔍 Preview das Primeiras 5 Linhas")
         st.dataframe(df.head(5), use_container_width=True, height=200)
+
+        if st.button("📧 Enviar"):
+            st.success("📤 Arquivo enviado com sucesso!")
+
     except Exception as e:
         st.error(f"Erro ao ler o arquivo: {e}")
