@@ -18,11 +18,11 @@ if not os.path.exists("base_geral"):
     os.makedirs("base_geral")
 
 # Corpo principal
-st.title("📊 Plataforma de Upload e Integração de Dados Limpar Auto")
-st.markdown("Envie sua planilha e acompanhe o processamento.")
-st.markdown("---")
-
-uploaded_file = st.file_uploader("Escolha um arquivo Excel ou CSV", type=["xlsx", "csv"])
+col1, col2 = st.columns([2, 3])
+with col1:
+    st.title("📊 Upload de Dados")
+with col2:
+    
 
 # Session State para histórico
 if 'upload_history' not in st.session_state:
@@ -44,7 +44,7 @@ if uploaded_file:
 
     # Mostrar preview
     st.subheader("🔍 Preview dos Dados")
-    st.dataframe(df.head(), use_container_width=True)
+    st.dataframe(df.head(5), use_container_width=True, height=200)
 
     # Botão para confirmar upload
     if st.button("✅ Confirmar Upload e Tratar Dados"):
@@ -79,8 +79,7 @@ if uploaded_file:
 
                 st.success('🎯 Dados tratados com sucesso! Vamos para a análise.')
 
-                st.markdown("---")
-                st.subheader("📊 Relatório de Análise")
+                                st.subheader("📊 Análise")
 
                 # Cards de Métricas
                 col1, col2 = st.columns(2)
@@ -113,18 +112,16 @@ if uploaded_file:
                 output_path = os.path.join("base_geral", f"tratado_{save_name}")
                 df.to_excel(output_path, index=False)
 
-                st.success(f"🚀 Arquivo tratado enviado com sucesso para app de consolidação dos dados!")
+                st.success(f"🚀 Arquivo tratado enviado para a base consolidada!")
 
 # Mostrar Histórico
 if st.session_state.upload_history:
-    st.markdown("---")
-    st.subheader("🗓 Histórico de Uploads nesta Sessão")
+        st.subheader("🗓 Histórico da Sessão")
     for item in st.session_state.upload_history[::-1]:
         st.write(f"**{item['file']}** salvo como **{item['saved_as']}** em {item['time']}")
 
 # Visualizar Base Geral
-st.markdown("---")
-st.subheader("📁 Visualizar Base Geral")
+st.subheader("📁 Base Geral")
 base_files = os.listdir("base_geral")
 if base_files:
     for file in base_files:
@@ -139,7 +136,4 @@ else:
     st.info("Nenhum arquivo encontrado na base geral.")
 
 # Rodapé
-st.markdown("""
-    <hr>
-    <div style='text-align: center; color: #999;'>Desenvolvido em Phyton por Daniel Vasconcelos | <a href='https://www.dsviewdata.com' target='_blank'>dsviewdata.com</a></div>
-""", unsafe_allow_html=True)
+
