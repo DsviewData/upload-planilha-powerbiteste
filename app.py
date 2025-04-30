@@ -9,6 +9,23 @@ st.title("📤 Upload de Planilha Excel")
 upload_dir = "uploads"
 os.makedirs(upload_dir, exist_ok=True)
 
+# Listar arquivos já enviados com botão de download
+st.subheader("📂 Arquivos já enviados:")
+files = os.listdir(upload_dir)
+if files:
+    for file in files:
+        file_path = os.path.join(upload_dir, file)
+        with open(file_path, "rb") as f:
+            st.download_button(
+                label=f"⬇️ Baixar {file}",
+                data=f,
+                file_name=file,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+else:
+    st.info("Nenhum arquivo enviado ainda.")
+
+# Upload de novo arquivo
 uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
 
 if uploaded_file:
@@ -30,11 +47,18 @@ if uploaded_file:
                 f.write(uploaded_file.getbuffer())
             st.success("📤 Arquivo enviado e salvo com sucesso!")
 
-            # Listar arquivos na pasta
-            st.subheader("📂 Arquivos já enviados:")
-            files = os.listdir(upload_dir)
-            for f in files:
-                st.write(f"📎 {f}")
+            # Atualizar lista com botões de download
+            st.subheader("📂 Arquivos atualizados:")
+            updated_files = os.listdir(upload_dir)
+            for file in updated_files:
+                path = os.path.join(upload_dir, file)
+                with open(path, "rb") as f:
+                    st.download_button(
+                        label=f"⬇️ Baixar {file}",
+                        data=f,
+                        file_name=file,
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
 
     except Exception as e:
         st.error(f"Erro ao processar a planilha: {e}")
