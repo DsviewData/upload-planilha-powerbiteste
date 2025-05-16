@@ -9,7 +9,7 @@ from datetime import datetime
 # === CONFIGURAÇÕES SEGURAS ===
 CLIENT_ID = "f9c5914b-2940-4edf-8364-1178052836ce"
 CLIENT_SECRET = "fY48Q~JBBAVTnzALge4bQkIZcr8a3D6TNUsEWbx7"
-TENANT_ID = "Zgc8Q~OAe8jp1po9o5HVzRYSbQJblpxGbdMhcbzS"
+TENANT_ID = "6e1d8e0e-e910-48dc-80d2-112fc3cf3a7d"
 PASTA_ONEDRIVE = "ProjetosBI/Limpar Auto/fontededados/dados_geral/faturamento"
 
 # === AUTENTICAÇÃO ===
