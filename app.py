@@ -48,13 +48,18 @@ def mover_arquivo_existente(nome_arquivo, token):
 
 # === UPLOAD PARA ONEDRIVE ===
 def upload_onedrive(nome_arquivo, conteudo_arquivo, token):
-    mover_arquivo_existente(nome_arquivo, token)  # Tenta renomear antes de sobrescrever
+    mover_arquivo_existente(nome_arquivo, token)  # renomeia se existir
     url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}:/content"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/octet-stream"
     }
     response = requests.put(url, headers=headers, data=conteudo_arquivo)
+
+    # Mostrar o motivo do erro
+    st.text(f"Status: {response.status_code}")
+    st.text(f"Resposta: {response.text}")
+
     return response.status_code in [200, 201]
 
 # === STREAMLIT UI ===
