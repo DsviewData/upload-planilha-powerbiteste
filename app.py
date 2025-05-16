@@ -22,25 +22,33 @@ def obter_token():
         print("❌ Erro ao obter token:", result)
         return None
 
-# === BUSCAR O DRIVE PRINCIPAL E SALVAR EM ARQUIVO ===
+# === BUSCAR O DRIVE E SALVAR SAÍDA ===
 def salvar_drive_id(token):
     url = "https://graph.microsoft.com/v1.0/sites/root/drive"
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(url, headers=headers)
-    print("📄 Resposta de /sites/root/drive:")
-    print("Status:", response.status_code)
-    print("Conteúdo:", response.text[:300])
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        print("📡 Status da resposta:", response.status_code)
+        print("📄 Resposta (até 300 chars):", response.text[:300])
 
-    if response.status_code == 200:
-        drive_id = response.json().get("id")
-        if drive_id:
-            with open("drive_id.txt", "w") as f:
-                f.write(drive_id)
-            print("✅ drive_id salvo em drive_id.txt")
+        with open("resposta_raw.txt", "w", encoding="utf-8") as f:
+            f.write(response.text)
+
+        if response.status_code == 200:
+            data = response.json()
+            drive_id = data.get("id")
+            if drive_id:
+                with open("drive_id.txt", "w") as f:
+                    f.write(drive_id)
+                print("✅ drive_id salvo em drive_id.txt")
+            else:
+                print("⚠️ Nenhum drive_id encontrado na resposta.")
         else:
-            print("❌ Não foi possível extrair o drive_id.")
-    else:
-        print("❌ Erro na requisição:", response.text)
+            print("❌ Erro ao consultar o Graph:", response.text)
+    except requests.exceptions.Timeout:
+        print("⏰ Timeout: A API não respondeu em 10 segundos.")
+    except Exception as e:
+        print("❌ Erro inesperado:", e)
 
 if __name__ == "__main__":
     token = obter_token()
