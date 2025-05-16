@@ -24,7 +24,7 @@ def obter_token():
 
 # === RENOMEAR ARQUIVO EXISTENTE SE PRECISO ===
 def mover_arquivo_existente(nome_arquivo, token):
-    search_url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}"
+    search_url = https://graph.microsoft.com/v1.0/drives/{drive-id}/root:/{PASTA_ONEDRIVE}/{nome_arquivo}"
     headers = {
         "Authorization": f"Bearer {token}"
     }
