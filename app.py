@@ -1,18 +1,17 @@
 
-import streamlit as st
-import pandas as pd
-import os
 import requests
 from msal import ConfidentialClientApplication
 from datetime import datetime
+import os
 
-# === CONFIGURAÇÕES SEGURAS ===
+# === CREDENCIAIS DO AZURE ===
 CLIENT_ID = "f9c5914b-2940-4edf-8364-1178052836ce"
 CLIENT_SECRET = "4gx8Q~F4-zmN-NNgPlGWLNW.M4LvEr.WL4xCaaRj"
 TENANT_ID = "6e1d8e0e-e910-48dc-80d2-112fc3cf3a7d"
+EMAIL_ONEDRIVE = "daniel@dsviewdata.com"
 PASTA_ONEDRIVE = "uploads"
 
-# === AUTENTICAÇÃO ===
+# === OBTER TOKEN ===
 def obter_token():
     app = ConfidentialClientApplication(
         CLIENT_ID,
@@ -20,78 +19,60 @@ def obter_token():
         client_credential=CLIENT_SECRET
     )
     result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
-    return result.get("access_token")
+    if "access_token" in result:
+        print("✅ Token obtido!")
+        return result["access_token"]
+    else:
+        print("❌ Erro ao obter token:", result)
+        return None
 
-# === RENOMEAR ARQUIVO EXISTENTE SE PRECISO ===
+# === RENOMEAR ARQUIVO EXISTENTE COM BACKUP ===
 def mover_arquivo_existente(nome_arquivo, token):
-    search_url = https://graph.microsoft.com/v1.0/drives/{drive-id}/root:/{PASTA_ONEDRIVE}/{nome_arquivo}"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-    response = requests.get(search_url, headers=headers)
+    url = f"https://graph.microsoft.com/v1.0/users/{EMAIL_ONEDRIVE}/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
-        file_id = response.json()['id']
+        file_id = response.json().get("id")
         timestamp = datetime.now().strftime("%Y-%m-%d_%Hh%M")
         novo_nome = nome_arquivo.replace(".xlsx", f"_backup_{timestamp}.xlsx")
-        patch_url = f"https://graph.microsoft.com/v1.0/me/drive/items/{file_id}"
-        patch_body = {
-            "name": novo_nome
+        patch_url = f"https://graph.microsoft.com/v1.0/users/{EMAIL_ONEDRIVE}/drive/items/{file_id}"
+        patch_body = {"name": novo_nome}
+        patch_headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
         }
-        patch_response = requests.patch(
-            patch_url,
-            headers={**headers, "Content-Type": "application/json"},
-            json=patch_body
-        )
-        return patch_response.status_code in [200, 204]
-    return True  # Se não existe, segue o fluxo
+        patch_response = requests.patch(patch_url, headers=patch_headers, json=patch_body)
+        if patch_response.status_code in [200, 204]:
+            print(f"🔄 Backup realizado: {novo_nome}")
+        else:
+            print("⚠️ Falha ao renomear arquivo existente:", patch_response.text)
+    else:
+        print("ℹ️ Nenhum arquivo anterior com o mesmo nome encontrado.")
 
-# === UPLOAD PARA ONEDRIVE ===
-def upload_onedrive(nome_arquivo, conteudo_arquivo, token):
-    mover_arquivo_existente(nome_arquivo, token)  # renomeia se existir
-    url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}:/content"
+# === FAZER UPLOAD PARA ONEDRIVE ===
+def upload_arquivo(nome_arquivo_local, token):
+    nome_arquivo = os.path.basename(nome_arquivo_local)
+    with open(nome_arquivo_local, "rb") as f:
+        conteudo = f.read()
+
+    mover_arquivo_existente(nome_arquivo, token)
+
+    url = f"https://graph.microsoft.com/v1.0/users/{EMAIL_ONEDRIVE}/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}:/content"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/octet-stream"
     }
-    response = requests.put(url, headers=headers, data=conteudo_arquivo)
+    response = requests.put(url, headers=headers, data=conteudo)
+    print(f"📤 Status do upload: {response.status_code}")
+    print("📤 Resposta:", response.text)
 
-    # Mostrar o motivo do erro
-    st.text(f"Status: {response.status_code}")
-    st.text(f"Resposta: {response.text}")
-
-    return response.status_code in [200, 201]
-
-# === STREAMLIT UI ===
-st.set_page_config(page_title="Upload de Planilha", layout="wide")
-st.title("📤 Upload de Planilha Excel")
-
-uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
-
-if uploaded_file:
-    try:
-        xls = pd.ExcelFile(uploaded_file)
-        sheets = xls.sheet_names
-        if len(sheets) > 1:
-            sheet = st.selectbox("Selecione a aba da planilha:", sheets)
+if __name__ == "__main__":
+    token = obter_token()
+    if token:
+        # Substitua pelo caminho do arquivo local a ser enviado
+        caminho_arquivo = "Faturamento_geral_consolidado_limpar.xlsx"
+        if os.path.exists(caminho_arquivo):
+            upload_arquivo(caminho_arquivo, token)
         else:
-            sheet = sheets[0]
-        df = pd.read_excel(uploaded_file, sheet_name=sheet)
-
-        st.subheader("🔍 Preview das Primeiras 5 Linhas")
-        st.dataframe(df.head(5), use_container_width=True, height=200)
-
-        if st.button("📧 Enviar para OneDrive"):
-            with st.spinner("Enviando para o OneDrive..."):
-                token = obter_token()
-                if not token:
-                    st.error("❌ Erro ao obter token. Verifique as credenciais.")
-                else:
-                    sucesso = upload_onedrive(uploaded_file.name, uploaded_file.getbuffer(), token)
-                    if sucesso:
-                        st.success("✅ Arquivo enviado com sucesso para o OneDrive!")
-                    else:
-                        st.error("❌ Falha ao enviar o arquivo. Verifique se o caminho da pasta está correto.")
-
-    except Exception as e:
-        st.error(f"Erro ao processar a planilha: {e}")
+            print("❌ Arquivo local não encontrado:", caminho_arquivo)
