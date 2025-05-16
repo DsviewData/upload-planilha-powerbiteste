@@ -16,7 +16,7 @@ PASTA_ONEDRIVE = "ProjetosBI/Limpar Auto/fontededados/dados_geral/faturamento"
 def obter_token():
     app = ConfidentialClientApplication(
         CLIENT_ID,
-        authority=f"https://login.microsoftonline.com/common",
+        authority=authority=f"https://login.microsoftonline.com/{TENANT_ID}",
         client_credential=CLIENT_SECRET
     )
     result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
