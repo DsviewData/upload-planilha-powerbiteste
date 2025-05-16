@@ -1,72 +1,31 @@
-
 import streamlit as st
 import pandas as pd
 import os
-import requests
-from msal import ConfidentialClientApplication
-from datetime import datetime
 
-# === CONFIGURAÇÕES SEGURAS ===
-CLIENT_ID = "f9c5914b-2940-4edf-8364-1178052836ce"
-CLIENT_SECRET = "4gx8Q~F4-zmN-NNgPlGWLNW.M4LvEr.WL4xCaaRj"
-TENANT_ID = "6e1d8e0e-e910-48dc-80d2-112fc3cf3a7d"
-EMAIL_ONEDRIVE = "daniel@dsviewdata.com"
-PASTA_ONEDRIVE = "uploads"
-
-# === AUTENTICAÇÃO ===
-def obter_token():
-    app = ConfidentialClientApplication(
-        CLIENT_ID,
-        authority=f"https://login.microsoftonline.com/{TENANT_ID}",
-        client_credential=CLIENT_SECRET
-    )
-    result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
-    return result.get("access_token")
-
-# === RENOMEAR ARQUIVO EXISTENTE SE PRECISO ===
-def mover_arquivo_existente(nome_arquivo, token):
-    search_url = f"https://graph.microsoft.com/v1.0/users/{EMAIL_ONEDRIVE}/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-    response = requests.get(search_url, headers=headers)
-
-    if response.status_code == 200:
-        file_id = response.json()['id']
-        timestamp = datetime.now().strftime("%Y-%m-%d_%Hh%M")
-        novo_nome = nome_arquivo.replace(".xlsx", f"_backup_{timestamp}.xlsx")
-        patch_url = f"https://graph.microsoft.com/v1.0/users/{EMAIL_ONEDRIVE}/drive/items/{file_id}"
-        patch_body = {
-            "name": novo_nome
-        }
-        patch_response = requests.patch(
-            patch_url,
-            headers={**headers, "Content-Type": "application/json"},
-            json=patch_body
-        )
-        return patch_response.status_code in [200, 204]
-    return True  # Se não existe, segue o fluxo
-
-# === UPLOAD PARA ONEDRIVE ===
-def upload_onedrive(nome_arquivo, conteudo_arquivo, token):
-    mover_arquivo_existente(nome_arquivo, token)  # renomeia se existir
-    url = f"https://graph.microsoft.com/v1.0/users/{EMAIL_ONEDRIVE}/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}:/content"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/octet-stream"
-    }
-    response = requests.put(url, headers=headers, data=conteudo_arquivo)
-
-    # Mostrar o motivo do erro
-    st.text(f"Status: {response.status_code}")
-    st.text(f"Resposta: {response.text}")
-
-    return response.status_code in [200, 201]
-
-# === STREAMLIT UI ===
 st.set_page_config(page_title="Upload de Planilha", layout="wide")
 st.title("📤 Upload de Planilha Excel")
 
+# Criar pasta de uploads
+upload_dir = "uploads"
+os.makedirs(upload_dir, exist_ok=True)
+
+# Listar arquivos já enviados com botão de download
+st.subheader("📂 Arquivos já enviados:")
+files = os.listdir(upload_dir)
+if files:
+    for file in files:
+        file_path = os.path.join(upload_dir, file)
+        with open(file_path, "rb") as f:
+            st.download_button(
+                label=f"⬇️ Baixar {file}",
+                data=f,
+                file_name=file,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+else:
+    st.info("Nenhum arquivo enviado ainda.")
+
+# Upload de novo arquivo
 uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
 
 if uploaded_file:
@@ -82,17 +41,24 @@ if uploaded_file:
         st.subheader("🔍 Preview das Primeiras 5 Linhas")
         st.dataframe(df.head(5), use_container_width=True, height=200)
 
-        if st.button("📧 Enviar para OneDrive"):
-            with st.spinner("Enviando para o OneDrive..."):
-                token = obter_token()
-                if not token:
-                    st.error("❌ Erro ao obter token. Verifique as credenciais.")
-                else:
-                    sucesso = upload_onedrive(uploaded_file.name, uploaded_file.getbuffer(), token)
-                    if sucesso:
-                        st.success("✅ Arquivo enviado com sucesso para o OneDrive!")
-                    else:
-                        st.error("❌ Falha ao enviar o arquivo. Verifique se o caminho da pasta está correto.")
+        if st.button("📧 Enviar"):
+            file_path = os.path.join(upload_dir, uploaded_file.name)
+            with open(file_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
+            st.success("📤 Arquivo enviado e salvo com sucesso!")
+
+            # Atualizar lista com botões de download
+            st.subheader("📂 Arquivos atualizados:")
+            updated_files = os.listdir(upload_dir)
+            for file in updated_files:
+                path = os.path.join(upload_dir, file)
+                with open(path, "rb") as f:
+                    st.download_button(
+                        label=f"⬇️ Baixar {file}",
+                        data=f,
+                        file_name=file,
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
 
     except Exception as e:
         st.error(f"Erro ao processar a planilha: {e}")
