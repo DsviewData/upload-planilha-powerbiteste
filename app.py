@@ -1,18 +1,13 @@
 
-import streamlit as st
-import pandas as pd
-import os
 import requests
 from msal import ConfidentialClientApplication
-from datetime import datetime
 
-# === CONFIGURAÇÕES SEGURAS ===
+# === CREDENCIAIS DO AZURE ===
 CLIENT_ID = "f9c5914b-2940-4edf-8364-1178052836ce"
 CLIENT_SECRET = "4gx8Q~F4-zmN-NNgPlGWLNW.M4LvEr.WL4xCaaRj"
 TENANT_ID = "6e1d8e0e-e910-48dc-80d2-112fc3cf3a7d"
-PASTA_ONEDRIVE = "uploads"
 
-# === AUTENTICAÇÃO ===
+# === OBTER TOKEN ===
 def obter_token():
     app = ConfidentialClientApplication(
         CLIENT_ID,
@@ -20,78 +15,34 @@ def obter_token():
         client_credential=CLIENT_SECRET
     )
     result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
-    return result.get("access_token")
+    if "access_token" in result:
+        print("✅ Token obtido!")
+        return result["access_token"]
+    else:
+        print("❌ Erro ao obter token:", result)
+        return None
 
-# === RENOMEAR ARQUIVO EXISTENTE SE PRECISO ===
-def mover_arquivo_existente(nome_arquivo, token):
-    search_url = https://graph.microsoft.com/v1.0/drives/{drive-id}/root:/{PASTA_ONEDRIVE}/{nome_arquivo}"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-    response = requests.get(search_url, headers=headers)
+# === BUSCAR O DRIVE PRINCIPAL E SALVAR EM ARQUIVO ===
+def salvar_drive_id(token):
+    url = "https://graph.microsoft.com/v1.0/sites/root/drive"
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(url, headers=headers)
+    print("📄 Resposta de /sites/root/drive:")
+    print("Status:", response.status_code)
+    print("Conteúdo:", response.text[:300])
 
     if response.status_code == 200:
-        file_id = response.json()['id']
-        timestamp = datetime.now().strftime("%Y-%m-%d_%Hh%M")
-        novo_nome = nome_arquivo.replace(".xlsx", f"_backup_{timestamp}.xlsx")
-        patch_url = f"https://graph.microsoft.com/v1.0/me/drive/items/{file_id}"
-        patch_body = {
-            "name": novo_nome
-        }
-        patch_response = requests.patch(
-            patch_url,
-            headers={**headers, "Content-Type": "application/json"},
-            json=patch_body
-        )
-        return patch_response.status_code in [200, 204]
-    return True  # Se não existe, segue o fluxo
-
-# === UPLOAD PARA ONEDRIVE ===
-def upload_onedrive(nome_arquivo, conteudo_arquivo, token):
-    mover_arquivo_existente(nome_arquivo, token)  # renomeia se existir
-    url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}:/content"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/octet-stream"
-    }
-    response = requests.put(url, headers=headers, data=conteudo_arquivo)
-
-    # Mostrar o motivo do erro
-    st.text(f"Status: {response.status_code}")
-    st.text(f"Resposta: {response.text}")
-
-    return response.status_code in [200, 201]
-
-# === STREAMLIT UI ===
-st.set_page_config(page_title="Upload de Planilha", layout="wide")
-st.title("📤 Upload de Planilha Excel")
-
-uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
-
-if uploaded_file:
-    try:
-        xls = pd.ExcelFile(uploaded_file)
-        sheets = xls.sheet_names
-        if len(sheets) > 1:
-            sheet = st.selectbox("Selecione a aba da planilha:", sheets)
+        drive_id = response.json().get("id")
+        if drive_id:
+            with open("drive_id.txt", "w") as f:
+                f.write(drive_id)
+            print("✅ drive_id salvo em drive_id.txt")
         else:
-            sheet = sheets[0]
-        df = pd.read_excel(uploaded_file, sheet_name=sheet)
+            print("❌ Não foi possível extrair o drive_id.")
+    else:
+        print("❌ Erro na requisição:", response.text)
 
-        st.subheader("🔍 Preview das Primeiras 5 Linhas")
-        st.dataframe(df.head(5), use_container_width=True, height=200)
-
-        if st.button("📧 Enviar para OneDrive"):
-            with st.spinner("Enviando para o OneDrive..."):
-                token = obter_token()
-                if not token:
-                    st.error("❌ Erro ao obter token. Verifique as credenciais.")
-                else:
-                    sucesso = upload_onedrive(uploaded_file.name, uploaded_file.getbuffer(), token)
-                    if sucesso:
-                        st.success("✅ Arquivo enviado com sucesso para o OneDrive!")
-                    else:
-                        st.error("❌ Falha ao enviar o arquivo. Verifique se o caminho da pasta está correto.")
-
-    except Exception as e:
-        st.error(f"Erro ao processar a planilha: {e}")
+if __name__ == "__main__":
+    token = obter_token()
+    if token:
+        salvar_drive_id(token)
