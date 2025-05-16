@@ -38,7 +38,7 @@ def obter_drive_id(token):
 # === FAZER UPLOAD DE TESTE ===
 def upload_arquivo(drive_id, token):
     nome_arquivo = f"upload_teste_{datetime.now().strftime('%Y%m%d_%H%M')}.txt"
-    conteudo = b"Este é um teste de envio para o OneDrive com drive_id."
+    conteudo = "Este é um teste de envio para o OneDrive com drive_id.".encode("utf-8")
     url = f"https://graph.microsoft.com/v1.0/drives/{drive_id}/root:/{PASTA_ONEDRIVE}/{nome_arquivo}:/content"
     headers = {
         "Authorization": f"Bearer {token}",
