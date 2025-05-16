@@ -1,62 +1,92 @@
+
 import streamlit as st
 import pandas as pd
 import os
+import requests
+from msal import ConfidentialClientApplication
 from datetime import datetime
 
+# === CONFIGURAÇÕES SEGURAS ===
+CLIENT_ID = "f9c5914b-2940-4edf-8364-1178052836ce"
+CLIENT_SECRET = "6e1d8e0e-e910-48dc-80d2-112fc3cf3a7d"
+TENANT_ID = "Zgc8Q~OAe8jp1po9o5HVzRYSbQJblpxGbdMhcbzS"
+PASTA_ONEDRIVE = "ProjetosBI/Limpar Auto/fontededados/dados_geral/faturamento"
+
+# === AUTENTICAÇÃO ===
+def obter_token():
+    app = ConfidentialClientApplication(
+        CLIENT_ID,
+        authority=f"https://login.microsoftonline.com/common",
+        client_credential=CLIENT_SECRET
+    )
+    result = app.acquire_token_for_client(scopes=["https://graph.microsoft.com/.default"])
+    return result.get("access_token")
+
+# === RENOMEAR ARQUIVO EXISTENTE SE PRECISO ===
+def mover_arquivo_existente(nome_arquivo, token):
+    search_url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}"
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    response = requests.get(search_url, headers=headers)
+
+    if response.status_code == 200:
+        file_id = response.json()['id']
+        timestamp = datetime.now().strftime("%Y-%m-%d_%Hh%M")
+        novo_nome = nome_arquivo.replace(".xlsx", f"_backup_{timestamp}.xlsx")
+        patch_url = f"https://graph.microsoft.com/v1.0/me/drive/items/{file_id}"
+        patch_body = {
+            "name": novo_nome
+        }
+        patch_response = requests.patch(
+            patch_url,
+            headers={**headers, "Content-Type": "application/json"},
+            json=patch_body
+        )
+        return patch_response.status_code in [200, 204]
+    return True  # Se não existe, segue o fluxo
+
+# === UPLOAD PARA ONEDRIVE ===
+def upload_onedrive(nome_arquivo, conteudo_arquivo, token):
+    mover_arquivo_existente(nome_arquivo, token)  # Tenta renomear antes de sobrescrever
+    url = f"https://graph.microsoft.com/v1.0/me/drive/root:/{PASTA_ONEDRIVE}/{nome_arquivo}:/content"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/octet-stream"
+    }
+    response = requests.put(url, headers=headers, data=conteudo_arquivo)
+    return response.status_code in [200, 201]
+
+# === STREAMLIT UI ===
 st.set_page_config(page_title="Upload de Planilha", layout="wide")
+st.title("📤 Upload de Planilha Excel")
 
-# Logo e título
-st.markdown("\n<div style='text-align: center; margin-bottom: 30px;'>\n    <img src='data:image/png;base64,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' width='250'>\n</div>\n", unsafe_allow_html=True)
-st.markdown("<h1 style='text-align:center; color:#0E4A80;'>📤 Upload de dados em planilha Excel</h1><hr>", unsafe_allow_html=True)
-
-st.title("📤 Upload de dados em planilha Excel")
-
-# 🧑 Usuário (futuramente você pode trocar isso por autenticação real)
-usuario = "daniel"  # Pode ser alterado ou vindo de login futuramente
-
-# 📂 Diretório com subpastas por usuário e data
-hoje = datetime.now().strftime("%Y-%m-%d")
-upload_dir = os.path.join("uploads", usuario, hoje)
-os.makedirs(upload_dir, exist_ok=True)
-
-# Listar arquivos enviados
-st.subheader("📂 Arquivos já enviados:")
-files = os.listdir(upload_dir)
-if files:
-    for file in files:
-        file_path = os.path.join(upload_dir, file)
-        with open(file_path, "rb") as f:
-            st.download_button(
-                label=f"⬇️ Baixar {file}",
-                data=f,
-                file_name=file,
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-else:
-    st.info("Nenhum arquivo enviado ainda.")
-
-# Upload
 uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
 
 if uploaded_file:
     try:
         xls = pd.ExcelFile(uploaded_file)
         sheets = xls.sheet_names
-        sheet = st.selectbox("Selecione a aba da planilha:", sheets) if len(sheets) > 1 else sheets[0]
+        if len(sheets) > 1:
+            sheet = st.selectbox("Selecione a aba da planilha:", sheets)
+        else:
+            sheet = sheets[0]
         df = pd.read_excel(uploaded_file, sheet_name=sheet)
 
         st.subheader("🔍 Preview das Primeiras 5 Linhas")
         st.dataframe(df.head(5), use_container_width=True, height=200)
 
-        if st.button("📧 Enviar"):
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-            filename = f"{uploaded_file.name.split('.')[0]}_{timestamp}.xlsx"
-            file_path = os.path.join(upload_dir, filename)
-            with open(file_path, "wb") as f:
-                f.write(uploaded_file.getbuffer())
-            st.success("📤 Arquivo enviado e salvo com sucesso!")
+        if st.button("📧 Enviar para OneDrive"):
+            with st.spinner("Enviando para o OneDrive..."):
+                token = obter_token()
+                if not token:
+                    st.error("❌ Erro ao obter token. Verifique as credenciais.")
+                else:
+                    sucesso = upload_onedrive(uploaded_file.name, uploaded_file.getbuffer(), token)
+                    if sucesso:
+                        st.success("✅ Arquivo enviado com sucesso para o OneDrive!")
+                    else:
+                        st.error("❌ Falha ao enviar o arquivo. Verifique se o caminho da pasta está correto.")
 
     except Exception as e:
         st.error(f"Erro ao processar a planilha: {e}")
-# Rodapé
-st.markdown("<hr><div style='text-align: center; color: gray;'>© 2025 DS View Data – Todos os direitos reservados</div>", unsafe_allow_html=True)
