@@ -50,7 +50,7 @@ def upload_onedrive(nome_arquivo, conteudo_arquivo, token):
     return response.status_code in [200, 201]
 
 st.set_page_config(page_title="Upload para OneDrive com st.secrets", layout="wide")
-st.title("📤 Upload Seguro com Backup no OneDrive (Streamlit Cloud)")
+st.title("📤 Upload de dados em planilha excel")
 
 uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
 if uploaded_file:
@@ -68,7 +68,7 @@ if uploaded_file:
                 else:
                     sucesso = upload_onedrive(uploaded_file.name, uploaded_file.getbuffer(), token)
                     if sucesso:
-                        st.success("✅ Enviado com sucesso!")
+                        st.success("✅ Arquivo Enviado com sucesso!")
                     else:
                         st.error("❌ Falha no envio.")
     except Exception as e:
