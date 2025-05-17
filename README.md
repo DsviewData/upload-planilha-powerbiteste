@@ -1,26 +1,25 @@
+# DSViewData - Upload para OneDrive com Backup (via Streamlit Cloud)
 
-# 📊 Plataforma de Upload e Integração de Dados - Versão Dashboard Premium
+Este app permite que seus clientes enviem planilhas diretamente para uma pasta do OneDrive. Ele faz backup automático se o arquivo já existir.
 
-Aplicativo premium para envio, tratamento e análise de planilhas Excel (.xlsx), focado em Power BI, com layout moderno e corporativo.
+## ✅ Requisitos
 
-## Funcionalidades
-- Upload de múltiplos arquivos
-- Simulação de envio para "servidor"
-- Validação e tratamento automático
-- Cards de métricas (Total TMO, Quantidade de Registros)
-- Gráfico de Vendas estilizado
-- Download da planilha tratada (.xlsx)
-- Layout Premium Clean Corporativo
+- Conta do OneDrive for Business (com permissão API configurada no Azure)
+- Chaves de acesso definidas no menu "Secrets" do Streamlit Cloud
 
-## Como rodar localmente
-1. Clone o repositório
-2. Instale as dependências:
-   ```
-   pip install -r requirements.txt
-   ```
-3. Rode o aplicativo:
-   ```
-   streamlit run app.py
-   ```
+## 🔐 Como configurar no Streamlit Cloud
 
-Feito com ❤️ usando Streamlit.
+1. Vá até [https://streamlit.io/cloud](https://streamlit.io/cloud)
+2. Conecte o repositório com este projeto
+3. Acesse **Settings > Secrets** e adicione:
+
+```
+CLIENT_ID = "..."
+CLIENT_SECRET = "..."
+TENANT_ID = "..."
+EMAIL_ONEDRIVE = "daniel@dsviewdata.com"
+```
+
+## ▶️ Rodar localmente (opcional)
+
+Você pode também rodar localmente com um `.env` e `python-dotenv` se preferir.
