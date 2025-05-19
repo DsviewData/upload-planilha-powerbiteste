@@ -83,6 +83,32 @@ if aba == "📤 Upload de planilha":
             sheet = st.selectbox("Selecione a aba:", sheets) if len(sheets) > 1 else sheets[0]
             df = pd.read_excel(uploaded_file, sheet_name=sheet)
             st.dataframe(df.head(5), use_container_width=True, height=200)
+
+# === RESUMO AUTOMÁTICO DA PLANILHA ===
+st.subheader("📊 Resumo dos dados")
+
+# Tamanho
+st.write(f"📏 Linhas: {df.shape[0]} | Colunas: {df.shape[1]}")
+
+# Nulos
+colunas_nulas = df.columns[df.isnull().any()].tolist()
+if colunas_nulas:
+    st.warning(f"⚠️ Colunas com valores nulos: {', '.join(colunas_nulas)}")
+else:
+    st.success("✅ Nenhuma coluna com valores nulos.")
+
+# Nomes inválidos
+import unicodedata
+def nome_invalido(col):
+    col_ascii = unicodedata.normalize("NFKD", col).encode("ASCII", "ignore").decode()
+    return not col_ascii.replace("_", "").isalnum()
+
+colunas_invalidas = [col for col in df.columns if nome_invalido(col)]
+if colunas_invalidas:
+    st.error(f"🚫 Nomes de colunas inválidos: {', '.join(colunas_invalidas)}")
+else:
+    st.success("✅ Todos os nomes de colunas são válidos.")
+
             if st.button("📧 Enviar"):
                 with st.spinner("Enviando..."):
                     sucesso, status, resposta = upload_onedrive(uploaded_file.name, uploaded_file.getbuffer(), token)
