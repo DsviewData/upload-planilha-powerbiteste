@@ -68,12 +68,27 @@ def deletar_arquivo(token, file_id):
 
 # === INTERFACE STREAMLIT ===
 st.set_page_config(page_title="Upload e Gestão de Planilhas", layout="wide")
+
+
+# === CABEÇALHO COM ESTILO ===
+st.markdown(
+    '''
+    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+        <img src="logo_horizontal.png" width="180"/>
+        <h2 style="margin: 0; color: #2E8B57;">DSView BI – Upload de Planilhas</h2>
+    </div>
+    ''',
+    unsafe_allow_html=True
+)
+
+
 aba = st.sidebar.radio("📂 Navegar", ["📤 Upload de planilha", "📁 Gerenciar arquivos"])
 
 token = obter_token()
 
 if aba == "📤 Upload de planilha":
-    st.title("📤 Upload de Planilha Excel para OneDrive")
+    st.markdown("## 📤 Upload de Planilha Excel")
+st.divider()
 
     uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
     if uploaded_file:
@@ -95,7 +110,8 @@ if aba == "📤 Upload de planilha":
             st.error(f"Erro ao processar: {e}")
 
 elif aba == "📁 Gerenciar arquivos":
-    st.title("📂 Painel de Arquivos - Pasta uploads")
+    st.markdown("## 📂 Painel de Arquivos")
+st.divider()
 
     if token:
         arquivos = listar_arquivos(token)
@@ -106,14 +122,7 @@ elif aba == "📁 Gerenciar arquivos":
                     with col1:
                         st.markdown(f"[🔗 Acessar arquivo]({arq['@microsoft.graph.downloadUrl']})")
                         st.write(f"Tamanho: {round(arq['size']/1024, 2)} KB")
-                    with col2:
-                        if st.button("🗑️ Excluir", key=arq["id"]):
-                            sucesso = deletar_arquivo(token, arq["id"])
-                            if sucesso:
-                                st.success(f"{arq['name']} removido com sucesso.")
-                                st.experimental_rerun()
-                            else:
-                                st.error("Erro ao excluir o arquivo.")
+                    
         else:
             st.info("Nenhum arquivo encontrado na pasta uploads.")
     else:
