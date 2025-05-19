@@ -89,7 +89,6 @@ token = obter_token()
 if aba == "📤 Upload de planilha":
     st.markdown("## 📤 Upload de Planilha Excel")
 st.divider()
-
     uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
     if uploaded_file:
         try:
