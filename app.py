@@ -86,9 +86,11 @@ aba = st.sidebar.radio("📂 Navegar", ["📤 Upload de planilha", "📁 Gerenci
 
 token = obter_token()
 
+
 if aba == "📤 Upload de planilha":
     st.markdown("## 📤 Upload de Planilha Excel")
-st.divider()
+    st.divider()
+
     uploaded_file = st.file_uploader("Escolha um arquivo Excel", type=["xlsx"])
     if uploaded_file:
         try:
@@ -96,7 +98,34 @@ st.divider()
             sheets = xls.sheet_names
             sheet = st.selectbox("Selecione a aba:", sheets) if len(sheets) > 1 else sheets[0]
             df = pd.read_excel(uploaded_file, sheet_name=sheet)
+        except Exception as e:
+            st.error(f"Erro ao ler o Excel: {e}")
+            df = None
+
+        if df is not None:
             st.dataframe(df.head(5), use_container_width=True, height=200)
+
+            # === RESUMO AUTOMÁTICO DA PLANILHA ===
+            st.subheader("📊 Resumo dos dados")
+            st.write(f"📏 Linhas: {df.shape[0]} | Colunas: {df.shape[1]}")
+
+            colunas_nulas = df.columns[df.isnull().any()].tolist()
+            if colunas_nulas:
+                st.warning(f"⚠️ Colunas com valores nulos: {', '.join(colunas_nulas)}")
+            else:
+                st.success("✅ Nenhuma coluna com valores nulos.")
+
+            import unicodedata
+            def nome_invalido(col):
+                col_ascii = unicodedata.normalize("NFKD", col).encode("ASCII", "ignore").decode()
+                return not col_ascii.replace("_", "").isalnum()
+
+            colunas_invalidas = [col for col in df.columns if nome_invalido(col)]
+            if colunas_invalidas:
+                st.error(f"🚫 Nomes de colunas inválidos: {', '.join(colunas_invalidas)}")
+            else:
+                st.success("✅ Todos os nomes de colunas são válidos.")
+
             if st.button("📧 Enviar"):
                 with st.spinner("Enviando..."):
                     sucesso, status, resposta = upload_onedrive(uploaded_file.name, uploaded_file.getbuffer(), token)
@@ -105,8 +134,6 @@ st.divider()
                     else:
                         st.error(f"❌ Erro {status}")
                         st.code(resposta)
-        except Exception as e:
-            st.error(f"Erro ao processar: {e}")
 
 elif aba == "📁 Gerenciar arquivos":
     st.markdown("## 📂 Painel de Arquivos")
