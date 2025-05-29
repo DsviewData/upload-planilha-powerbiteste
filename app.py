@@ -9,7 +9,7 @@ CLIENT_ID = st.secrets["CLIENT_ID"]
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 TENANT_ID = st.secrets["TENANT_ID"]
 EMAIL_ONEDRIVE = st.secrets["EMAIL_ONEDRIVE"]
-PASTA = "ProjetosBI/Limpar Auto/fontededados/dados_geral/faturamento"
+PASTA = "Documentos Compartilhados/LimparAuto/FontedeDados"
 
 # === AUTENTICAÇÃO ===
 def obter_token():
