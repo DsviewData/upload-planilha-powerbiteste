@@ -20,22 +20,10 @@ def obter_token():
 token = obter_token()
 headers = {"Authorization": f"Bearer {token}"}
 
-# === OBTER SITE_ID ===
-resp_site = requests.get(
-    "https://graph.microsoft.com/v1.0/sites/dsviewdata0.sharepoint.com:/sites/root",
+# === LISTAR TODOS OS SITES DISPONÍVEIS ===
+resp_sites = requests.get(
+    "https://graph.microsoft.com/v1.0/sites?search=*",
     headers=headers
 )
-st.write("📎 SITE ID:")
-st.json(resp_site.json())
-
-# === OBTER DRIVE_ID ===
-site_id = resp_site.json().get("id")
-if site_id:
-    resp_drive = requests.get(
-        f"https://graph.microsoft.com/v1.0/sites/{site_id}/drives",
-        headers=headers
-    )
-    st.write("📁 DRIVES DISPONÍVEIS:")
-    st.json(resp_drive.json())
-else:
-    st.error("❌ Não foi possível obter o site ID.")
+st.write("📋 Lista de Sites que você tem acesso:")
+st.json(resp_sites.json())
