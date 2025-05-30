@@ -2,11 +2,12 @@
 import requests
 import streamlit as st
 
-# Obter token da aplicação
+# === CREDENCIAIS ===
 from msal import ConfidentialClientApplication
 CLIENT_ID = st.secrets["CLIENT_ID"]
 CLIENT_SECRET = st.secrets["CLIENT_SECRET"]
 TENANT_ID = st.secrets["TENANT_ID"]
+SITE_ID = st.secrets["SITE_ID"]
 
 def obter_token():
     app = ConfidentialClientApplication(
@@ -20,10 +21,10 @@ def obter_token():
 token = obter_token()
 headers = {"Authorization": f"Bearer {token}"}
 
-# === LISTAR TODOS OS SITES DISPONÍVEIS ===
-resp_sites = requests.get(
-    "https://graph.microsoft.com/v1.0/sites?search=*",
+# === OBTER DRIVES DO SITE ===
+resp = requests.get(
+    f"https://graph.microsoft.com/v1.0/sites/{SITE_ID}/drives",
     headers=headers
 )
-st.write("📋 Lista de Sites que você tem acesso:")
-st.json(resp_sites.json())
+st.write("📂 Lista de Drives disponíveis no Site:")
+st.json(resp.json())
