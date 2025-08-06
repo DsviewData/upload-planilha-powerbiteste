@@ -28,13 +28,26 @@ class Config:
     SUPPORTED_FORMATS = ["xlsx", "xls", "csv"]
     GRAPH_API_BASE = "https://graph.microsoft.com/v1.0"
     
-    # Schema das colunas esperadas por arquivo (definir conforme necessário)
+    # Schema das colunas esperadas por arquivo (baseado na planilha real)
     EXPECTED_SCHEMAS = {
-        # Exemplo de schemas - ajustar conforme suas planilhas do Power BI
+        "faturamento_geral_consolidado_limpar.xlsx": [
+            "GRUPO", "CONCESSIONÁRIA", "LOJA", "MARCA", "UF", "MUNICIPIO", "RESPONSÁVEL", "CNPJ",
+            "VLR_DUTOS", "QTD_DUTOS", "TOTAL_DUTOS", "VLR_FREIO", "QTD_FREIO", "TOTAL_FREIO",
+            "VLR_SANITIZANTE", "QTD_SANITIZANTE", "TOTAL_SANITIZANTE", "VLR_VERNIZ", "QTD_VERNIZ", "TOTAL_VERNIZ",
+            "VLR_CX EVAP", "QTD_CX EVAP", "TOTAL_CX EVAP", "VLR_PROTEC", "QTD_PROTEC", "TOTAL_PROTEC",
+            "VLR_NITROGÊNIO", "QTD_NITROGÊNIO", "TOTAL_CX EVAP.1", "QTD_TOTAL", "VLR_TOTAL",
+            "DATA_MES", "EMPRESA", "DATA FATURA", "ATRASO", "VENCIMENTO", "FAT OU NF", "NF",
+            "RESP/ LEVA", "RECEBIDO", "VLR_RECEBIDO", "A RECEBER", "ENVIAR PARA", "OBS",
+            "IMPOSTO", "IMP TOTAL", "BONIF UNIT", "EXTRA", "BONIF TOTAL", "INDIC UNIT", "INDIC",
+            "PROV UNIT", "PROVISÃO", "BACKOFFICE (R$2)", "REEMBOLSO", "DIVERSOS", "MÁQUINAS", "GASTOS",
+            "GABRIEL", "MAN", "HYUNDAI", "JEEP", "VW", "PSA", "GWM", "LUCRO LIQ", "%", "VALOR",
+            "DESCONTOS", "A RECEBER.1", "QTD_MAQ DUTO", "QTD_MAQ FREIO", "QTD_MAQ SANITIZANTE",
+            "QTD_MAQ VERNIZ", "QTD_CX EVAP.1", "TOTAL_MAQ", "CT", "SUP", "APLC", "FACILIT",
+            "CH OFIC", "AGEND", "CONTR", "OUTROS", "GPV", "DIR", "DIR GERAL", "POR TMO", "INDICAÇÃO", "PROVIS."
+        ],
+        # Adicione outros schemas conforme necessário
         "vendas.xlsx": ["ID", "Data", "Produto", "Vendedor", "Valor", "Quantidade", "Regiao"],
         "clientes.xlsx": ["ID_Cliente", "Nome", "Email", "Telefone", "Cidade", "Estado"],
-        "produtos.xlsx": ["ID_Produto", "Nome_Produto", "Categoria", "Preco", "Estoque"],
-        # Adicione mais schemas conforme necessário
     }
     
     @classmethod
@@ -261,7 +274,9 @@ class DataValidator:
             "extra_columns": extra_columns,
             "message": "Schema validado" if is_valid else "Schema incompatível"
         }
-        """Análise detalhada das linhas duplicadas"""
+    
+    @staticmethod
+    def get_duplicate_analysis(df: pd.DataFrame) -> Dict[str, Any]:
         if df.duplicated().sum() == 0:
             return {"has_duplicates": False}
         
@@ -374,6 +389,7 @@ def show_schema_validation(df: pd.DataFrame, filename: str) -> bool:
     )
     
     return False
+def show_duplicate_analysis(df: pd.DataFrame):
     """Exibe análise detalhada das duplicatas"""
     duplicate_analysis = DataValidator.get_duplicate_analysis(df)
     
