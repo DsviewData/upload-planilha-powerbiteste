@@ -44,10 +44,7 @@ class Config:
             "DESCONTOS", "A RECEBER.1", "QTD_MAQ DUTO", "QTD_MAQ FREIO", "QTD_MAQ SANITIZANTE",
             "QTD_MAQ VERNIZ", "QTD_CX EVAP.1", "TOTAL_MAQ", "CT", "SUP", "APLC", "FACILIT",
             "CH OFIC", "AGEND", "CONTR", "OUTROS", "GPV", "DIR", "DIR GERAL", "POR TMO", "INDICAÇÃO", "PROVIS."
-        ],
-        # Adicione outros schemas conforme necessário
-        "vendas.xlsx": ["ID", "Data", "Produto", "Vendedor", "Valor", "Quantidade", "Regiao"],
-        "clientes.xlsx": ["ID_Cliente", "Nome", "Email", "Telefone", "Cidade", "Estado"],
+        ]
     }
     
     @classmethod
