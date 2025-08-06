@@ -416,12 +416,10 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
     
     # Opções de upload
     st.subheader("⚙️ Opções de Upload")
-    col1, col2 = st.columns(2)
     
-    with col1:
-        fazer_backup = st.checkbox("📦 Fazer backup do arquivo existente", value=True)
-    with col2:
-        confirmar_upload = st.checkbox("✅ Confirmo que os dados estão corretos")
+    st.info("📦 **Backup automático:** O sistema fará backup automaticamente de qualquer arquivo existente com o mesmo nome")
+    
+    confirmar_upload = st.checkbox("✅ Confirmo que os dados estão corretos e autorizo o upload")
     
     # Botão de upload
     if not confirmar_upload:
@@ -458,7 +456,7 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
                 uploaded_file.name, 
                 file_content, 
                 token, 
-                fazer_backup
+                True  # Sempre fazer backup
             )
             
             progress_bar.progress(100)
