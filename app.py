@@ -28,6 +28,15 @@ class Config:
     SUPPORTED_FORMATS = ["xlsx", "xls", "csv"]
     GRAPH_API_BASE = "https://graph.microsoft.com/v1.0"
     
+    # Schema das colunas esperadas por arquivo (definir conforme necessário)
+    EXPECTED_SCHEMAS = {
+        # Exemplo de schemas - ajustar conforme suas planilhas do Power BI
+        "vendas.xlsx": ["ID", "Data", "Produto", "Vendedor", "Valor", "Quantidade", "Regiao"],
+        "clientes.xlsx": ["ID_Cliente", "Nome", "Email", "Telefone", "Cidade", "Estado"],
+        "produtos.xlsx": ["ID_Produto", "Nome_Produto", "Categoria", "Preco", "Estoque"],
+        # Adicione mais schemas conforme necessário
+    }
+    
     @classmethod
     def get_credentials(cls) -> Dict[str, str]:
         """Obtém credenciais dos secrets do Streamlit com validação"""
@@ -41,6 +50,23 @@ class Config:
             credentials[secret] = st.secrets[secret]
         
         return credentials
+    
+    @classmethod
+    def get_expected_schema(cls, filename: str) -> Optional[List[str]]:
+        """Obtém o schema esperado para um arquivo específico"""
+        filename_lower = filename.lower()
+        
+        # Busca exata primeiro
+        if filename_lower in cls.EXPECTED_SCHEMAS:
+            return cls.EXPECTED_SCHEMAS[filename_lower]
+        
+        # Busca por palavras-chave no nome do arquivo
+        for schema_file, columns in cls.EXPECTED_SCHEMAS.items():
+            schema_name = schema_file.split('.')[0]  # Remove extensão
+            if schema_name in filename_lower:
+                return columns
+        
+        return None
 
 # === CLASSE PARA GERENCIAR ONEDRIVE ===
 class OneDriveManager:
@@ -207,7 +233,34 @@ class DataValidator:
         return analysis
     
     @staticmethod
-    def get_duplicate_analysis(df: pd.DataFrame) -> Dict[str, Any]:
+    def validate_schema(df: pd.DataFrame, filename: str) -> Dict[str, Any]:
+        """Valida se o schema das colunas está compatível com o Power BI"""
+        expected_columns = Config.get_expected_schema(filename)
+        
+        if expected_columns is None:
+            return {
+                "is_valid": True,
+                "has_schema": False,
+                "message": "Schema não definido para este arquivo - upload permitido"
+            }
+        
+        current_columns = list(df.columns)
+        
+        # Verifica se todas as colunas esperadas estão presentes
+        missing_columns = [col for col in expected_columns if col not in current_columns]
+        extra_columns = [col for col in current_columns if col not in expected_columns]
+        
+        is_valid = len(missing_columns) == 0 and len(extra_columns) == 0
+        
+        return {
+            "is_valid": is_valid,
+            "has_schema": True,
+            "expected_columns": expected_columns,
+            "current_columns": current_columns,
+            "missing_columns": missing_columns,
+            "extra_columns": extra_columns,
+            "message": "Schema validado" if is_valid else "Schema incompatível"
+        }
         """Análise detalhada das linhas duplicadas"""
         if df.duplicated().sum() == 0:
             return {"has_duplicates": False}
@@ -257,7 +310,70 @@ def show_header():
         unsafe_allow_html=True
     )
 
-def show_duplicate_analysis(df: pd.DataFrame):
+def show_schema_validation(df: pd.DataFrame, filename: str) -> bool:
+    """Exibe validação de schema e retorna se é válido para upload"""
+    schema_result = DataValidator.validate_schema(df, filename)
+    
+    if not schema_result["has_schema"]:
+        st.info("ℹ️ **Schema não definido** - Este arquivo não possui validação de schema configurada")
+        return True
+    
+    if schema_result["is_valid"]:
+        st.success("✅ **Schema validado** - Estrutura das colunas está correta para o Power BI")
+        return True
+    
+    # Schema inválido - mostrar detalhes
+    st.error("🚫 **ERRO: Schema incompatível com Power BI**")
+    
+    # Container com detalhes do erro
+    with st.container():
+        st.markdown("### 🔍 Detalhes da Incompatibilidade")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**📋 Colunas Esperadas (Power BI):**")
+            for col in schema_result["expected_columns"]:
+                st.markdown(f"• `{col}`")
+        
+        with col2:
+            st.markdown("**📊 Colunas Encontradas (Seu Arquivo):**")
+            for col in schema_result["current_columns"]:
+                # Marca em vermelho se não está na lista esperada
+                if col in schema_result["extra_columns"]:
+                    st.markdown(f"• `{col}` ❌")
+                else:
+                    st.markdown(f"• `{col}` ✅")
+        
+        # Problemas específicos
+        if schema_result["missing_columns"]:
+            st.error(f"**🚫 Colunas ausentes:** {', '.join(schema_result['missing_columns'])}")
+        
+        if schema_result["extra_columns"]:
+            st.error(f"**➕ Colunas extras:** {', '.join(schema_result['extra_columns'])}")
+    
+    # Aviso importante
+    st.markdown(
+        """
+        <div style="
+            background-color: #ffebcd;
+            border-left: 5px solid #ff6b6b;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        ">
+            <h4 style="color: #d63031; margin: 0 0 10px 0;">⚠️ UPLOAD BLOQUEADO</h4>
+            <p style="margin: 0; color: #2d3436;">
+                <strong>A estrutura das colunas não está compatível com o Power BI.</strong><br>
+                Entre em contato com a <strong>DSViewData</strong> para informar que houve mudança no nome das colunas.<br><br>
+                📧 <strong>Ação necessária:</strong> Solicite a atualização do schema ou corrija os nomes das colunas na planilha.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    return False
     """Exibe análise detalhada das duplicatas"""
     duplicate_analysis = DataValidator.get_duplicate_analysis(df)
     
@@ -406,6 +522,14 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
     
     if analysis["null_columns"]:
         st.warning(f"⚠️ **Colunas com valores nulos:** {', '.join(analysis['null_columns'])}")
+    
+    # VALIDAÇÃO DE SCHEMA - NOVO!
+    st.subheader("🔍 Validação de Schema (Power BI)")
+    schema_valid = show_schema_validation(df, uploaded_file.name)
+    
+    # Se schema inválido, bloquear upload
+    if not schema_valid:
+        st.stop()  # Para a execução aqui
     
     # Análise de duplicatas aprimorada
     duplicate_action = "keep_all"  # Valor padrão
@@ -585,6 +709,17 @@ def main():
         st.markdown(f"📁 **Pasta:** {Config.PASTA}")
         st.markdown(f"📊 **Formatos:** {', '.join(Config.SUPPORTED_FORMATS)}")
         st.markdown(f"📏 **Limite:** {Config.MAX_FILE_SIZE_MB}MB")
+        
+        # Mostra schemas disponíveis
+        st.markdown("---")
+        st.markdown("### 📋 Schemas Configurados")
+        if Config.EXPECTED_SCHEMAS:
+            for filename, columns in Config.EXPECTED_SCHEMAS.items():
+                with st.expander(f"📄 {filename}", expanded=False):
+                    for col in columns:
+                        st.markdown(f"• `{col}`")
+        else:
+            st.info("Nenhum schema configurado")
     
     # Exibe a aba selecionada
     if aba == "📤 Upload de Planilha":
