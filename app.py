@@ -205,6 +205,37 @@ class DataValidator:
         }
         
         return analysis
+    
+    @staticmethod
+    def get_duplicate_analysis(df: pd.DataFrame) -> Dict[str, Any]:
+        """Análise detalhada das linhas duplicadas"""
+        if df.duplicated().sum() == 0:
+            return {"has_duplicates": False}
+        
+        # Identifica todas as linhas duplicadas (incluindo a primeira ocorrência)
+        duplicated_mask = df.duplicated(keep=False)
+        duplicated_df = df[duplicated_mask].copy()
+        
+        # Adiciona índice original para referência
+        duplicated_df['🔢 Linha Original'] = df[duplicated_mask].index + 1
+        
+        # Agrupa por valores duplicados
+        duplicate_groups = []
+        for group_idx, (_, group) in enumerate(df[duplicated_mask].groupby(df.columns.tolist())):
+            duplicate_groups.append({
+                "group_id": group_idx + 1,
+                "count": len(group),
+                "original_indices": (group.index + 1).tolist(),
+                "data": group.iloc[0].to_dict()  # Primeira ocorrência do grupo
+            })
+        
+        return {
+            "has_duplicates": True,
+            "total_duplicated_rows": duplicated_mask.sum(),
+            "unique_duplicate_patterns": len(duplicate_groups),
+            "duplicate_groups": duplicate_groups,
+            "duplicated_df": duplicated_df
+        }
 
 # === FUNÇÕES DA INTERFACE ===
 def show_header():
@@ -225,6 +256,85 @@ def show_header():
         """,
         unsafe_allow_html=True
     )
+
+def show_duplicate_analysis(df: pd.DataFrame):
+    """Exibe análise detalhada das duplicatas"""
+    duplicate_analysis = DataValidator.get_duplicate_analysis(df)
+    
+    if not duplicate_analysis["has_duplicates"]:
+        return None
+    
+    st.markdown("### 🔍 Análise Detalhada das Duplicatas")
+    
+    # Métricas das duplicatas
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("📊 Total de Linhas Duplicadas", duplicate_analysis["total_duplicated_rows"])
+    with col2:
+        st.metric("🎯 Padrões Únicos", duplicate_analysis["unique_duplicate_patterns"])
+    with col3:
+        st.metric("📝 Linhas a Remover", duplicate_analysis["total_duplicated_rows"] - duplicate_analysis["unique_duplicate_patterns"])
+    
+    # Tabs para diferentes visualizações
+    tab1, tab2, tab3 = st.tabs(["📋 Grupos de Duplicatas", "📊 Todas as Duplicatas", "🔧 Ações"])
+    
+    with tab1:
+        st.markdown("**Grupos de linhas idênticas:**")
+        
+        for group in duplicate_analysis["duplicate_groups"]:
+            with st.expander(f"🔸 Grupo {group['group_id']} - {group['count']} ocorrências (linhas: {', '.join(map(str, group['original_indices']))})", expanded=False):
+                # Cria um DataFrame com uma linha para mostrar os dados
+                group_df = pd.DataFrame([group["data"]])
+                st.dataframe(group_df, use_container_width=True, hide_index=True)
+                
+                st.info(f"💡 Este padrão aparece {group['count']} vezes nas linhas: {', '.join(map(str, group['original_indices']))}")
+    
+    with tab2:
+        st.markdown("**Todas as linhas duplicadas (com índice original):**")
+        
+        # Reorganiza as colunas para mostrar o índice primeiro
+        display_df = duplicate_analysis["duplicated_df"]
+        cols = ['🔢 Linha Original'] + [col for col in display_df.columns if col != '🔢 Linha Original']
+        display_df = display_df[cols]
+        
+        st.dataframe(
+            display_df, 
+            use_container_width=True, 
+            hide_index=True,
+            height=400
+        )
+        
+        # Botão para download das duplicatas
+        csv_duplicates = display_df.to_csv(index=False)
+        st.download_button(
+            label="📥 Baixar Duplicatas (CSV)",
+            data=csv_duplicates,
+            file_name="duplicatas_encontradas.csv",
+            mime="text/csv"
+        )
+    
+    with tab3:
+        st.markdown("**Escolha como proceder:**")
+        
+        action = st.radio(
+            "Ação a tomar:",
+            [
+                "🧹 Remover todas as duplicatas (manter apenas primeira ocorrência)",
+                "✏️ Remover duplicatas específicas (selecionar manualmente)",
+                "📤 Manter todas as linhas (upload sem alteração)"
+            ]
+        )
+        
+        if action.startswith("✏️"):
+            st.info("🚧 **Funcionalidade em desenvolvimento** - Por ora, use 'Remover todas as duplicatas'")
+            return "keep_all"
+        elif action.startswith("🧹"):
+            return "remove_all"
+        else:
+            return "keep_all"
+    
+    # Retorna por padrão "keep_all" se nenhuma ação foi selecionada
+    return "keep_all"
 
 def show_upload_tab(onedrive_manager: OneDriveManager):
     """Interface para upload de planilhas"""
@@ -297,11 +407,12 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
     if analysis["null_columns"]:
         st.warning(f"⚠️ **Colunas com valores nulos:** {', '.join(analysis['null_columns'])}")
     
+    # Análise de duplicatas aprimorada
+    duplicate_action = "keep_all"  # Valor padrão
+    
     if analysis["duplicate_rows"] > 0:
         st.warning(f"⚠️ **{analysis['duplicate_rows']} linhas duplicadas encontradas**")
-        if st.checkbox("🧹 Remover duplicatas antes do upload"):
-            df = df.drop_duplicates()
-            st.success(f"✅ Duplicatas removidas. Linhas restantes: {len(df)}")
+        duplicate_action = show_duplicate_analysis(df)
     
     # Opções de upload
     st.subheader("⚙️ Opções de Upload")
@@ -326,16 +437,20 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
         with st.spinner("📤 Enviando arquivo..."):
             progress_bar = st.progress(0)
             
-            # Se houve limpeza de dados, salva o arquivo limpo
-            if analysis["duplicate_rows"] > 0 and 'df' in locals():
-                buffer = io.BytesIO()
-                if uploaded_file.name.lower().endswith('.csv'):
-                    df.to_csv(buffer, index=False)
-                else:
-                    df.to_excel(buffer, index=False, sheet_name=sheet_name or 'Sheet1')
-                file_content = buffer.getvalue()
+            # Processa o arquivo baseado na ação escolhida para duplicatas
+            df_final = df.copy()
+            
+            if duplicate_action == "remove_all" and analysis["duplicate_rows"] > 0:
+                df_final = df.drop_duplicates()
+                st.info(f"🧹 Duplicatas removidas: {len(df) - len(df_final)} linhas eliminadas")
+            
+            # Salva o arquivo processado
+            buffer = io.BytesIO()
+            if uploaded_file.name.lower().endswith('.csv'):
+                df_final.to_csv(buffer, index=False)
             else:
-                file_content = uploaded_file.getbuffer()
+                df_final.to_excel(buffer, index=False, sheet_name=sheet_name or 'Sheet1')
+            file_content = buffer.getvalue()
             
             progress_bar.progress(50)
             
@@ -350,6 +465,14 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
             
             if sucesso:
                 st.success("🎉 **Arquivo enviado com sucesso!**")
+                
+                # Mostra estatísticas do upload
+                if duplicate_action == "remove_all" and analysis["duplicate_rows"] > 0:
+                    st.info(f"📊 **Estatísticas do upload:**\n"
+                            f"- Linhas originais: {len(df)}\n"
+                            f"- Linhas enviadas: {len(df_final)}\n"
+                            f"- Duplicatas removidas: {len(df) - len(df_final)}")
+                
                 st.balloons()
                 
                 # Log da operação
