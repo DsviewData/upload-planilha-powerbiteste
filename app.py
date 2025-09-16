@@ -21,6 +21,284 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# === CSS CUSTOMIZADO PARA INTERFACE MODERNA ===
+def load_custom_css():
+    """Carrega CSS customizado para melhorar a interface visual"""
+    st.markdown("""
+    <style>
+    /* Importar fonte moderna */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* Reset e configurações globais */
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* Fonte global */
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Header personalizado */
+    .custom-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .custom-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    .custom-header h1 {
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .custom-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+        font-weight: 400;
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Cards modernos */
+    .metric-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0.5rem 0;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        color: #718096;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Alertas personalizados */
+    .custom-alert {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        border-left: 4px solid;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-left-color: #28a745;
+        color: #155724;
+    }
+    
+    .alert-warning {
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+        border-left-color: #ffc107;
+        color: #856404;
+    }
+    
+    .alert-error {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        border-left-color: #dc3545;
+        color: #721c24;
+    }
+    
+    .alert-info {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        border-left-color: #17a2b8;
+        color: #0c5460;
+    }
+    
+    /* Botões modernos */
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Sidebar moderna */
+    .css-1d391kg {
+        background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    /* Tabelas modernas */
+    .dataframe {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    
+    /* Progress bar personalizada */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    /* Upload area */
+    .uploadedFile {
+        border: 2px dashed #667eea;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+        transition: all 0.3s ease;
+    }
+    
+    .uploadedFile:hover {
+        border-color: #764ba2;
+        background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+    }
+    
+    /* Seções com separadores visuais */
+    .section-divider {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #667eea, transparent);
+        margin: 2rem 0;
+        border-radius: 1px;
+    }
+    
+    /* Animações suaves */
+    .element-container {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Status indicators */
+    .status-indicator {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+        animation: pulse 2s infinite;
+    }
+    
+    .status-success { background-color: #28a745; }
+    .status-warning { background-color: #ffc107; }
+    .status-error { background-color: #dc3545; }
+    .status-info { background-color: #17a2b8; }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    /* Tooltips */
+    .tooltip {
+        position: relative;
+        cursor: help;
+    }
+    
+    .tooltip:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        z-index: 1000;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .custom-header h1 {
+            font-size: 2rem;
+        }
+        
+        .metric-card {
+            margin-bottom: 1rem;
+        }
+        
+        .main .block-container {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # === CONSTANTES ===
 class Config:
     PASTA = "Documentos Compartilhados/LimparAuto/FontedeDados"
@@ -244,23 +522,37 @@ class DataValidator:
     
     @staticmethod
     def validate_schema(df: pd.DataFrame, filename: str) -> Dict[str, Any]:
-        """Valida se o schema das colunas está compatível com o Power BI"""
+        """
+        Valida se o schema das colunas está compatível com o Power BI
+        NOVA LÓGICA: Permite novas colunas, mas verifica se as colunas existentes estão corretas
+        """
         expected_columns = Config.get_expected_schema(filename)
         
         if expected_columns is None:
             return {
                 "is_valid": True,
                 "has_schema": False,
-                "message": "Schema não definido para este arquivo - upload permitido"
+                "message": "Schema não definido para este arquivo - upload permitido",
+                "allow_consolidation": True
             }
         
         current_columns = list(df.columns)
         
-        # Verifica se todas as colunas esperadas estão presentes
+        # NOVA LÓGICA: Verifica se todas as colunas esperadas estão presentes
+        # Permite colunas extras (novas colunas)
         missing_columns = [col for col in expected_columns if col not in current_columns]
         extra_columns = [col for col in current_columns if col not in expected_columns]
         
-        is_valid = len(missing_columns) == 0 and len(extra_columns) == 0
+        # Válido se não há colunas faltando (colunas extras são permitidas)
+        is_valid = len(missing_columns) == 0
+        allow_consolidation = is_valid  # Permite consolidação se não há colunas faltando
+        
+        if is_valid and extra_columns:
+            message = f"Schema compatível com novas colunas detectadas: {', '.join(extra_columns)}"
+        elif is_valid:
+            message = "Schema totalmente compatível"
+        else:
+            message = f"Schema incompatível - colunas obrigatórias ausentes: {', '.join(missing_columns)}"
         
         return {
             "is_valid": is_valid,
@@ -269,7 +561,8 @@ class DataValidator:
             "current_columns": current_columns,
             "missing_columns": missing_columns,
             "extra_columns": extra_columns,
-            "message": "Schema validado" if is_valid else "Schema incompatível"
+            "allow_consolidation": allow_consolidation,
+            "message": message
         }
     
     @staticmethod
@@ -304,81 +597,131 @@ class DataValidator:
 
 # === FUNÇÕES DA INTERFACE ===
 def show_header():
-    """Exibe cabeçalho da aplicação"""
+    """Exibe cabeçalho moderno da aplicação"""
     st.markdown(
         """
-        <div style="
-            background: linear-gradient(90deg, #2E8B57, #3CB371);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            color: white;
-            text-align: center;
-        ">
-            <h1 style="margin: 0; font-size: 2rem;">📊 DSView BI</h1>
-            <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Sistema de Upload e Gestão de Planilhas</p>
+        <div class="custom-header">
+            <h1>📊 DSView BI</h1>
+            <p>Sistema Inteligente de Upload e Gestão de Planilhas</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def show_custom_metric(label: str, value: str, icon: str = "📊"):
+    """Exibe métrica personalizada com design moderno"""
+    st.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="metric-label">{icon} {label}</div>
+            <div class="metric-value">{value}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def show_custom_alert(message: str, alert_type: str = "info", icon: str = "ℹ️"):
+    """Exibe alerta personalizado com design moderno"""
+    st.markdown(
+        f"""
+        <div class="custom-alert alert-{alert_type}">
+            <span class="status-indicator status-{alert_type}"></span>
+            <strong>{icon}</strong> {message}
         </div>
         """,
         unsafe_allow_html=True
     )
 
 def show_schema_validation(df: pd.DataFrame, filename: str) -> bool:
-    """Exibe validação de schema e retorna se é válido para upload"""
+    """Exibe validação de schema melhorada e retorna se é válido para upload"""
     schema_result = DataValidator.validate_schema(df, filename)
     
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### 🔍 Validação de Schema (Power BI)")
+    
     if not schema_result["has_schema"]:
-        st.info("ℹ️ **Schema não definido** - Este arquivo não possui validação de schema configurada")
+        show_custom_alert(
+            "Schema não definido - Este arquivo não possui validação de schema configurada. Upload permitido.",
+            "info", "ℹ️"
+        )
         return True
     
     if schema_result["is_valid"]:
-        st.success("✅ **Schema validado** - Estrutura das colunas está correta para o Power BI")
+        if schema_result["extra_columns"]:
+            show_custom_alert(
+                f"✅ Schema compatível! Novas colunas detectadas: {', '.join(schema_result['extra_columns'][:3])}{'...' if len(schema_result['extra_columns']) > 3 else ''}",
+                "success", "🆕"
+            )
+        else:
+            show_custom_alert(
+                "✅ Schema totalmente compatível - Estrutura das colunas está perfeita para o Power BI",
+                "success", "✅"
+            )
         return True
     
-    # Schema inválido - mostrar detalhes
-    st.error("🚫 **ERRO: Schema incompatível com Power BI**")
+    # Schema inválido - mostrar detalhes com design melhorado
+    show_custom_alert(
+        "🚫 ERRO: Schema incompatível com Power BI - Colunas obrigatórias ausentes",
+        "error", "🚫"
+    )
     
     # Container com detalhes do erro
     with st.container():
-        st.markdown("### 🔍 Detalhes da Incompatibilidade")
+        st.markdown("#### 🔍 Análise Detalhada da Incompatibilidade")
         
         col1, col2 = st.columns(2)
         
         with col1:
             st.markdown("**📋 Colunas Esperadas (Power BI):**")
-            for col in schema_result["expected_columns"]:
-                st.markdown(f"• `{col}`")
+            expected_df = pd.DataFrame({
+                "Coluna": schema_result["expected_columns"],
+                "Status": ["✅ Presente" if col in schema_result["current_columns"] else "❌ Ausente" 
+                          for col in schema_result["expected_columns"]]
+            })
+            st.dataframe(expected_df, use_container_width=True, hide_index=True)
         
         with col2:
-            st.markdown("**📊 Colunas Encontradas (Seu Arquivo):**")
-            for col in schema_result["current_columns"]:
-                # Marca em vermelho se não está na lista esperada
-                if col in schema_result["extra_columns"]:
-                    st.markdown(f"• `{col}` ❌")
-                else:
-                    st.markdown(f"• `{col}` ✅")
+            st.markdown("**📊 Colunas do Seu Arquivo:**")
+            current_df = pd.DataFrame({
+                "Coluna": schema_result["current_columns"],
+                "Status": ["✅ Esperada" if col in schema_result["expected_columns"] else "🆕 Nova" 
+                          for col in schema_result["current_columns"]]
+            })
+            st.dataframe(current_df, use_container_width=True, hide_index=True)
         
-        # Problemas específicos
+        # Problemas específicos com design melhorado
         if schema_result["missing_columns"]:
-            st.error(f"**🚫 Colunas ausentes:** {', '.join(schema_result['missing_columns'])}")
+            st.markdown("#### ❌ Colunas Obrigatórias Ausentes")
+            missing_df = pd.DataFrame({
+                "Coluna Ausente": schema_result["missing_columns"],
+                "Impacto": ["Alto"] * len(schema_result["missing_columns"])
+            })
+            st.dataframe(missing_df, use_container_width=True, hide_index=True)
         
         if schema_result["extra_columns"]:
-            st.error(f"**➕ Colunas extras:** {', '.join(schema_result['extra_columns'])}")
+            st.markdown("#### 🆕 Novas Colunas Detectadas")
+            extra_df = pd.DataFrame({
+                "Nova Coluna": schema_result["extra_columns"],
+                "Ação": ["Será consolidada"] * len(schema_result["extra_columns"])
+            })
+            st.dataframe(extra_df, use_container_width=True, hide_index=True)
     
-    # Aviso importante
+    # Aviso importante com design melhorado
     st.markdown(
         """
         <div style="
-            background-color: #ffebcd;
+            background: linear-gradient(135deg, #ffebcd 0%, #ffd6a5 100%);
             border-left: 5px solid #ff6b6b;
-            padding: 15px;
+            padding: 20px;
             margin: 20px 0;
-            border-radius: 5px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
         ">
-            <h4 style="color: #d63031; margin: 0 0 10px 0;">⚠️ UPLOAD BLOQUEADO</h4>
-            <p style="margin: 0; color: #2d3436;">
+            <h4 style="color: #d63031; margin: 0 0 15px 0;">⚠️ UPLOAD BLOQUEADO</h4>
+            <p style="margin: 0; color: #2d3436; line-height: 1.6;">
                 <strong>A estrutura das colunas não está compatível com o Power BI.</strong><br>
                 Entre em contato com a <strong>DSViewData</strong> para informar que houve mudança no nome das colunas.<br><br>
-                📧 <strong>Ação necessária:</strong> Solicite a atualização do schema ou corrija os nomes das colunas na planilha.
+                📧 <strong>Ação necessária:</strong> Solicite a atualização do schema no sistema.
             </p>
         </div>
         """,
@@ -386,158 +729,192 @@ def show_schema_validation(df: pd.DataFrame, filename: str) -> bool:
     )
     
     return False
-def show_duplicate_analysis(df: pd.DataFrame):
-    """Exibe análise detalhada das duplicatas"""
-    duplicate_analysis = DataValidator.get_duplicate_analysis(df)
-    
-    if not duplicate_analysis["has_duplicates"]:
-        return None
-    
-    st.markdown("### 🔍 Análise Detalhada das Duplicatas")
-    
-    # Métricas das duplicatas
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("📊 Total de Linhas Duplicadas", duplicate_analysis["total_duplicated_rows"])
-    with col2:
-        st.metric("🎯 Padrões Únicos", duplicate_analysis["unique_duplicate_patterns"])
-    with col3:
-        st.metric("📝 Linhas a Remover", duplicate_analysis["total_duplicated_rows"] - duplicate_analysis["unique_duplicate_patterns"])
-    
-    # Tabs para diferentes visualizações
-    tab1, tab2, tab3 = st.tabs(["📋 Grupos de Duplicatas", "📊 Todas as Duplicatas", "🔧 Ações"])
-    
-    with tab1:
-        st.markdown("**Grupos de linhas idênticas:**")
-        
-        for group in duplicate_analysis["duplicate_groups"]:
-            with st.expander(f"🔸 Grupo {group['group_id']} - {group['count']} ocorrências (linhas: {', '.join(map(str, group['original_indices']))})", expanded=False):
-                # Cria um DataFrame com uma linha para mostrar os dados
-                group_df = pd.DataFrame([group["data"]])
-                st.dataframe(group_df, use_container_width=True, hide_index=True)
-                
-                st.info(f"💡 Este padrão aparece {group['count']} vezes nas linhas: {', '.join(map(str, group['original_indices']))}")
-    
-    with tab2:
-        st.markdown("**Todas as linhas duplicadas (com índice original):**")
-        
-        # Reorganiza as colunas para mostrar o índice primeiro
-        display_df = duplicate_analysis["duplicated_df"]
-        cols = ['🔢 Linha Original'] + [col for col in display_df.columns if col != '🔢 Linha Original']
-        display_df = display_df[cols]
-        
-        st.dataframe(
-            display_df, 
-            use_container_width=True, 
-            hide_index=True,
-            height=400
-        )
-        
-        # Botão para download das duplicatas
-        csv_duplicates = display_df.to_csv(index=False)
-        st.download_button(
-            label="📥 Baixar Duplicatas (CSV)",
-            data=csv_duplicates,
-            file_name="duplicatas_encontradas.csv",
-            mime="text/csv"
-        )
-    
-    with tab3:
-        st.markdown("**Escolha como proceder:**")
-        
-        action = st.radio(
-            "Ação a tomar:",
-            [
-                "🧹 Remover todas as duplicatas (manter apenas primeira ocorrência)",
-                "✏️ Remover duplicatas específicas (selecionar manualmente)",
-                "📤 Manter todas as linhas (upload sem alteração)"
-            ]
-        )
-        
-        if action.startswith("✏️"):
-            st.info("🚧 **Funcionalidade em desenvolvimento** - Por ora, use 'Remover todas as duplicatas'")
-            return "keep_all"
-        elif action.startswith("🧹"):
-            return "remove_all"
-        else:
-            return "keep_all"
-    
-    # Retorna por padrão "keep_all" se nenhuma ação foi selecionada
-    return "keep_all"
 
-def show_upload_tab(onedrive_manager: OneDriveManager):
-    """Interface para upload de planilhas"""
-    st.markdown("## 📤 Upload de Planilha")
+def show_duplicate_analysis(df: pd.DataFrame) -> str:
+    """Exibe análise de duplicatas melhorada"""
+    duplicate_info = DataValidator.get_duplicate_analysis(df)
     
-    # Informações sobre limites
-    st.info(f"📋 **Formatos aceitos:** {', '.join(Config.SUPPORTED_FORMATS)} | **Tamanho máximo:** {Config.MAX_FILE_SIZE_MB}MB")
+    if not duplicate_info["has_duplicates"]:
+        return "keep_all"
     
-    uploaded_file = st.file_uploader(
-        "Escolha um arquivo de planilha",
-        type=Config.SUPPORTED_FORMATS,
-        help=f"Selecione um arquivo de até {Config.MAX_FILE_SIZE_MB}MB"
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### 🔄 Análise de Duplicatas")
+    
+    # Métricas de duplicatas com design moderno
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        show_custom_metric(
+            "Linhas Duplicadas", 
+            str(duplicate_info["total_duplicated_rows"]), 
+            "🔄"
+        )
+    
+    with col2:
+        show_custom_metric(
+            "Padrões Únicos", 
+            str(duplicate_info["unique_duplicate_patterns"]), 
+            "🎯"
+        )
+    
+    with col3:
+        show_custom_metric(
+            "Impacto", 
+            f"{(duplicate_info['total_duplicated_rows']/len(df)*100):.1f}%", 
+            "📊"
+        )
+    
+    # Opções de tratamento
+    st.markdown("#### ⚙️ Opções de Tratamento")
+    
+    action = st.radio(
+        "Como deseja tratar as duplicatas?",
+        options=["keep_all", "remove_all"],
+        format_func=lambda x: {
+            "keep_all": "🔄 Manter todas as linhas (incluindo duplicatas)",
+            "remove_all": "🧹 Remover todas as duplicatas"
+        }[x],
+        key="duplicate_action"
     )
     
-    if uploaded_file is None:
+    # Preview das duplicatas
+    if st.checkbox("👀 Visualizar duplicatas encontradas"):
+        st.markdown("#### 🔍 Duplicatas Detectadas")
+        
+        # Mostra apenas as primeiras duplicatas para não sobrecarregar
+        preview_df = duplicate_info["duplicated_df"].head(20)
+        st.dataframe(preview_df, use_container_width=True)
+        
+        if len(duplicate_info["duplicated_df"]) > 20:
+            st.info(f"Mostrando 20 de {len(duplicate_info['duplicated_df'])} linhas duplicadas")
+    
+    return action
+
+def show_upload_tab(onedrive_manager: OneDriveManager):
+    """Interface de upload melhorada"""
+    st.markdown("## 📤 Upload de Planilha")
+    
+    # Upload de arquivo com design melhorado
+    uploaded_file = st.file_uploader(
+        "📁 Selecione sua planilha",
+        type=Config.SUPPORTED_FORMATS,
+        help=f"Formatos suportados: {', '.join(Config.SUPPORTED_FORMATS)} | Tamanho máximo: {Config.MAX_FILE_SIZE_MB}MB"
+    )
+    
+    if not uploaded_file:
+        # Instruções visuais quando não há arquivo
+        st.markdown(
+            """
+            <div style="
+                text-align: center;
+                padding: 3rem;
+                background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+                border-radius: 15px;
+                border: 2px dashed #667eea;
+                margin: 2rem 0;
+            ">
+                <h3 style="color: #667eea; margin-bottom: 1rem;">📁 Arraste e solte sua planilha aqui</h3>
+                <p style="color: #718096; margin: 0;">
+                    Ou clique no botão acima para selecionar um arquivo<br>
+                    <small>Formatos aceitos: Excel (.xlsx, .xls) e CSV (.csv)</small>
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         return
     
     # Validação de tamanho
-    file_size_mb = len(uploaded_file.getbuffer()) / 1024 / 1024
+    file_size_mb = uploaded_file.size / (1024 * 1024)
     if file_size_mb > Config.MAX_FILE_SIZE_MB:
-        st.error(f"❌ Arquivo muito grande: {file_size_mb:.1f}MB. Limite: {Config.MAX_FILE_SIZE_MB}MB")
+        show_custom_alert(
+            f"Arquivo muito grande ({file_size_mb:.1f}MB). Limite: {Config.MAX_FILE_SIZE_MB}MB",
+            "error", "⚠️"
+        )
         return
     
+    # Informações do arquivo com design moderno
+    st.markdown("### 📋 Informações do Arquivo")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        show_custom_metric("Nome", uploaded_file.name, "📄")
+    with col2:
+        show_custom_metric("Tamanho", f"{file_size_mb:.2f} MB", "💾")
+    with col3:
+        show_custom_metric("Tipo", uploaded_file.type or "Desconhecido", "🔧")
+    
+    # Leitura do arquivo
     try:
-        # Lê o arquivo baseado na extensão
         if uploaded_file.name.lower().endswith('.csv'):
             df = pd.read_csv(uploaded_file)
             sheet_name = None
         else:
-            xls = pd.ExcelFile(uploaded_file)
-            sheets = xls.sheet_names
+            # Para arquivos Excel, verificar múltiplas abas
+            excel_file = pd.ExcelFile(uploaded_file)
+            sheets = excel_file.sheet_names
             
             if len(sheets) > 1:
-                sheet_name = st.selectbox("📋 Selecione a aba:", sheets, key="sheet_selector")
+                st.markdown("#### 📋 Seleção de Aba")
+                sheet_name = st.selectbox("Escolha a aba:", sheets)
             else:
                 sheet_name = sheets[0]
-                st.info(f"📋 Aba selecionada: **{sheet_name}**")
+                show_custom_alert(f"Aba selecionada: {sheet_name}", "info", "📋")
             
             df = pd.read_excel(uploaded_file, sheet_name=sheet_name)
     
     except Exception as e:
-        st.error(f"❌ Erro ao ler arquivo: {str(e)}")
+        show_custom_alert(f"Erro ao ler arquivo: {str(e)}", "error", "❌")
         return
     
-    # Exibe preview dos dados
-    st.subheader("👀 Preview dos Dados")
-    st.dataframe(df.head(10), use_container_width=True, height=300)
+    # Preview dos dados com design melhorado
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### 👀 Preview dos Dados")
     
-    # Análise de qualidade dos dados
-    st.subheader("📊 Análise de Qualidade")
+    # Container para o preview
+    with st.container():
+        st.dataframe(
+            df.head(10), 
+            use_container_width=True, 
+            height=350
+        )
+        
+        if len(df) > 10:
+            st.caption(f"Mostrando 10 de {len(df)} linhas")
+    
+    # Análise de qualidade dos dados com métricas modernas
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### 📊 Análise de Qualidade")
+    
     analysis = DataValidator.analyze_data_quality(df)
     
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("📏 Linhas", analysis["total_rows"])
+        show_custom_metric("Linhas", f"{analysis['total_rows']:,}", "📏")
     with col2:
-        st.metric("📊 Colunas", analysis["total_columns"])
+        show_custom_metric("Colunas", str(analysis["total_columns"]), "📊")
     with col3:
-        st.metric("🔄 Duplicatas", analysis["duplicate_rows"])
+        show_custom_metric("Duplicatas", str(analysis["duplicate_rows"]), "🔄")
     with col4:
-        st.metric("💾 Tamanho (MB)", f"{analysis['memory_usage']:.2f}")
+        show_custom_metric("Memória", f"{analysis['memory_usage']:.2f} MB", "💾")
     
     # Validação de colunas
     valid_columns, invalid_columns = DataValidator.validate_column_names(df)
     
     if invalid_columns:
-        st.error(f"🚫 **Colunas com nomes inválidos:** {', '.join(invalid_columns)}")
+        show_custom_alert(
+            f"Colunas com nomes inválidos: {', '.join(invalid_columns)}",
+            "error", "🚫"
+        )
         st.info("💡 **Dica:** Renomeie as colunas para conter apenas letras, números e sublinhados")
     
     if analysis["null_columns"]:
-        st.warning(f"⚠️ **Colunas com valores nulos:** {', '.join(analysis['null_columns'])}")
+        show_custom_alert(
+            f"Colunas com valores nulos: {', '.join(analysis['null_columns'])}",
+            "warning", "⚠️"
+        )
     
-    # VALIDAÇÃO DE SCHEMA - NOVO!
-    st.subheader("🔍 Validação de Schema (Power BI)")
+    # VALIDAÇÃO DE SCHEMA MELHORADA
     schema_valid = show_schema_validation(df, uploaded_file.name)
     
     # Se schema inválido, bloquear upload
@@ -548,25 +925,28 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
     duplicate_action = "keep_all"  # Valor padrão
     
     if analysis["duplicate_rows"] > 0:
-        st.warning(f"⚠️ **{analysis['duplicate_rows']} linhas duplicadas encontradas**")
         duplicate_action = show_duplicate_analysis(df)
     
-    # Opções de upload
-    st.subheader("⚙️ Opções de Upload")
+    # Opções de upload com design moderno
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### ⚙️ Opções de Upload")
     
-    st.info("📦 **Backup automático:** O sistema fará backup automaticamente de qualquer arquivo existente com o mesmo nome")
+    show_custom_alert(
+        "Backup automático: O sistema fará backup automaticamente de qualquer arquivo existente com o mesmo nome",
+        "info", "📦"
+    )
     
     confirmar_upload = st.checkbox("✅ Confirmo que os dados estão corretos e autorizo o upload")
     
     # Botão de upload
     if not confirmar_upload:
-        st.info("⚠️ Marque a confirmação para habilitar o upload")
+        show_custom_alert("Marque a confirmação para habilitar o upload", "warning", "⚠️")
         return
     
     if st.button("📤 Realizar Upload", type="primary", use_container_width=True):
         token = onedrive_manager.get_token()
         if not token:
-            st.error("❌ Erro na autenticação")
+            show_custom_alert("Erro na autenticação", "error", "❌")
             return
         
         with st.spinner("📤 Enviando arquivo..."):
@@ -577,7 +957,10 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
             
             if duplicate_action == "remove_all" and analysis["duplicate_rows"] > 0:
                 df_final = df.drop_duplicates()
-                st.info(f"🧹 Duplicatas removidas: {len(df) - len(df_final)} linhas eliminadas")
+                show_custom_alert(
+                    f"Duplicatas removidas: {len(df) - len(df_final)} linhas eliminadas",
+                    "info", "🧹"
+                )
             
             # Salva o arquivo processado
             buffer = io.BytesIO()
@@ -599,14 +982,18 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
             progress_bar.progress(100)
             
             if sucesso:
-                st.success("🎉 **Arquivo enviado com sucesso!**")
+                show_custom_alert("🎉 Arquivo enviado com sucesso!", "success", "🎉")
                 
                 # Mostra estatísticas do upload
                 if duplicate_action == "remove_all" and analysis["duplicate_rows"] > 0:
-                    st.info(f"📊 **Estatísticas do upload:**\n"
-                            f"- Linhas originais: {len(df)}\n"
-                            f"- Linhas enviadas: {len(df_final)}\n"
-                            f"- Duplicatas removidas: {len(df) - len(df_final)}")
+                    st.markdown(
+                        f"""
+                        **📊 Estatísticas do Upload:**
+                        - Linhas originais: {len(df):,}
+                        - Linhas enviadas: {len(df_final):,}
+                        - Duplicatas removidas: {len(df) - len(df_final):,}
+                        """
+                    )
                 
                 st.balloons()
                 
@@ -614,11 +1001,11 @@ def show_upload_tab(onedrive_manager: OneDriveManager):
                 logger.info(f"Upload bem-sucedido: {uploaded_file.name} ({file_size_mb:.2f}MB)")
                 
             else:
-                st.error(f"❌ **Erro no upload** (Código: {status})")
+                show_custom_alert(f"Erro no upload (Código: {status})", "error", "❌")
                 st.code(resposta, language="text")
 
 def show_management_tab(onedrive_manager: OneDriveManager):
-    """Interface para gerenciar arquivos"""
+    """Interface para gerenciar arquivos melhorada"""
     st.markdown("## 📂 Gerenciar Arquivos")
     
     col1, col2 = st.columns([3, 1])
@@ -628,17 +1015,31 @@ def show_management_tab(onedrive_manager: OneDriveManager):
     
     token = onedrive_manager.get_token()
     if not token:
-        st.error("❌ Erro na autenticação")
+        show_custom_alert("Erro na autenticação", "error", "❌")
         return
     
     with st.spinner("📂 Carregando arquivos..."):
         arquivos = onedrive_manager.list_files(token)
     
     if not arquivos:
-        st.info("📭 Nenhum arquivo de planilha encontrado na pasta.")
+        st.markdown(
+            """
+            <div style="
+                text-align: center;
+                padding: 3rem;
+                background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+                border-radius: 15px;
+                margin: 2rem 0;
+            ">
+                <h3 style="color: #667eea;">📭 Nenhum arquivo encontrado</h3>
+                <p style="color: #718096;">Nenhum arquivo de planilha foi encontrado na pasta configurada.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         return
     
-    st.info(f"📊 **{len(arquivos)} arquivo(s) encontrado(s)**")
+    show_custom_alert(f"{len(arquivos)} arquivo(s) encontrado(s)", "info", "📊")
     
     # Tabela com informações dos arquivos
     arquivos_info = []
@@ -653,7 +1054,8 @@ def show_management_tab(onedrive_manager: OneDriveManager):
     
     df_arquivos = pd.DataFrame(arquivos_info)
     
-    # Exibe a tabela
+    # Exibe a tabela com design melhorado
+    st.markdown("### 📋 Lista de Arquivos")
     st.dataframe(
         df_arquivos[["📄 Nome", "📊 Tamanho", "📅 Modificado"]], 
         use_container_width=True,
@@ -661,12 +1063,13 @@ def show_management_tab(onedrive_manager: OneDriveManager):
     )
     
     # Seção para ações nos arquivos
-    st.subheader("🛠️ Ações")
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    st.markdown("### 🛠️ Ações nos Arquivos")
     
     arquivo_selecionado = st.selectbox(
         "Selecione um arquivo:",
         options=range(len(arquivos)),
-        format_func=lambda x: arquivos[x]['name']
+        format_func=lambda x: f"📄 {arquivos[x]['name']}"
     )
     
     if arquivo_selecionado is not None:
@@ -680,14 +1083,14 @@ def show_management_tab(onedrive_manager: OneDriveManager):
                 if download_url:
                     st.markdown(f"[📎 Clique aqui para baixar]({download_url})")
                 else:
-                    st.error("❌ Link não disponível")
+                    show_custom_alert("Link não disponível", "error", "❌")
         
         with col2:
             if st.button("📋 Copiar Link", use_container_width=True):
                 download_url = arq.get('@microsoft.graph.downloadUrl')
                 if download_url:
                     st.code(download_url)
-                    st.success("✅ Link exibido acima")
+                    show_custom_alert("Link exibido acima", "success", "✅")
         
         with col3:
             if st.button("🗑️ Deletar", use_container_width=True, type="secondary"):
@@ -695,20 +1098,24 @@ def show_management_tab(onedrive_manager: OneDriveManager):
                     with st.spinner("🗑️ Deletando..."):
                         sucesso = onedrive_manager.delete_file(token, arq['id'])
                         if sucesso:
-                            st.success("✅ Arquivo deletado!")
+                            show_custom_alert("Arquivo deletado!", "success", "✅")
                             st.rerun()
                         else:
-                            st.error("❌ Erro ao deletar arquivo")
+                            show_custom_alert("Erro ao deletar arquivo", "error", "❌")
 
 # === FUNÇÃO PRINCIPAL ===
 def main():
     """Função principal da aplicação"""
+    # Carrega CSS customizado
+    load_custom_css()
+    
+    # Exibe cabeçalho moderno
     show_header()
     
     # Inicializa o gerenciador OneDrive
     onedrive_manager = OneDriveManager()
     
-    # Sidebar para navegação
+    # Sidebar moderna para navegação
     with st.sidebar:
         st.markdown("### 🧭 Navegação")
         aba = st.radio(
@@ -718,10 +1125,56 @@ def main():
         )
         
         st.markdown("---")
-        st.markdown("### ℹ️ Informações")
-        st.markdown(f"📁 **Pasta:** {Config.PASTA}")
-        st.markdown(f"📊 **Formatos:** {', '.join(Config.SUPPORTED_FORMATS)}")
-        st.markdown(f"📏 **Limite:** {Config.MAX_FILE_SIZE_MB}MB")
+        st.markdown("### ℹ️ Configurações")
+        
+        # Informações em cards
+        st.markdown(
+            f"""
+            <div style="
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+                margin: 0.5rem 0;
+                border-left: 4px solid #667eea;
+            ">
+                <strong>📁 Pasta:</strong><br>
+                <small>{Config.PASTA}</small>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        st.markdown(
+            f"""
+            <div style="
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+                margin: 0.5rem 0;
+                border-left: 4px solid #28a745;
+            ">
+                <strong>📊 Formatos:</strong><br>
+                <small>{', '.join(Config.SUPPORTED_FORMATS)}</small>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        st.markdown(
+            f"""
+            <div style="
+                background: white;
+                padding: 1rem;
+                border-radius: 8px;
+                margin: 0.5rem 0;
+                border-left: 4px solid #ffc107;
+            ">
+                <strong>📏 Limite:</strong><br>
+                <small>{Config.MAX_FILE_SIZE_MB}MB</small>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
         
         # Mostra schemas disponíveis
         st.markdown("---")
@@ -729,8 +1182,11 @@ def main():
         if Config.EXPECTED_SCHEMAS:
             for filename, columns in Config.EXPECTED_SCHEMAS.items():
                 with st.expander(f"📄 {filename}", expanded=False):
-                    for col in columns:
+                    st.markdown(f"**Total de colunas:** {len(columns)}")
+                    for i, col in enumerate(columns[:5]):  # Mostra apenas as primeiras 5
                         st.markdown(f"• `{col}`")
+                    if len(columns) > 5:
+                        st.markdown(f"... e mais {len(columns) - 5} colunas")
         else:
             st.info("Nenhum schema configurado")
     
@@ -742,3 +1198,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
